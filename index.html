@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Creating Value From Data — A Monetization Framework</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --ink:        #0B1929;
+  --ink-2:      #112338;
+  --line:       #24405C;
+  --paper:      #F7F1E4;
+  --paper-2:    #EFE5CC;
+  --gold:       #C99A3A;
+  --gold-bright:#E2B65B;
+  --teal:       #3FBFB0;
+  --rust:       #B5532B;
+  --plum:       #9B7BC4;
+  --text-light: #D7DEE6;
+  --text-mute:  #8FA0B3;
+  --text-dark:  #1B2430;
+  --serif: 'Fraunces', serif;
+  --sans:  'Inter', sans-serif;
+  --mono:  'IBM Plex Mono', monospace;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--ink);
+  color:var(--text-light);
+  font-family:var(--sans);
+  line-height:1.6;
+  overflow-x:hidden;
+}
+img,svg{display:block;max-width:100%;}
+h1,h2,h3{font-family:var(--serif);font-weight:600;margin:0 0 .4em;color:var(--paper);}
+a{color:inherit;}
+button{font-family:var(--sans);cursor:pointer;}
+.eyebrow{
+  font-family:var(--mono);
+  font-size:.72rem;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--text-mute);
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px;}
+.lede{font-size:1.08rem;color:var(--text-light);max-width:640px;}
+
+:focus-visible{outline:2px solid var(--teal);outline-offset:3px;}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important;}
+}
+
+/* ============ TICKER ============ */
+.ticker{
+  background:var(--ink-2);
+  border-bottom:1px solid var(--line);
+  overflow:hidden;
+  white-space:nowrap;
+  padding:9px 0;
+  position:relative;
+  z-index:50;
+}
+.ticker-track{
+  display:inline-block;
+  font-family:var(--mono);
+  font-size:.74rem;
+  letter-spacing:.12em;
+  color:var(--text-mute);
+  animation:tickerMove 32s linear infinite;
+}
+.ticker-track span{margin:0 1.4em;}
+.ticker-track span.hot{color:var(--gold-bright);}
+@keyframes tickerMove{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+/* ============ QUICKNAV ============ */
+.quicknav{
+  position:fixed;
+  right:18px;
+  top:50%;
+  transform:translateY(-50%);
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  z-index:60;
+}
+.quicknav a{
+  width:34px;height:34px;border-radius:6px;
+  border:1px solid var(--line);
+  background:var(--ink-2);
+  color:var(--text-mute);
+  font-family:var(--mono);
+  font-size:.78rem;
+  display:flex;align-items:center;justify-content:center;
+  text-decoration:none;
+  transition:all .25s ease;
+}
+.quicknav a:hover,.quicknav a:focus-visible{border-color:var(--gold-bright);color:var(--gold-bright);transform:scale(1.08);}
+@media (max-width:880px){.quicknav{display:none;}}
+
+/* ============ HERO ============ */
+header.hero{
+  position:relative;
+  padding:84px 0 60px;
+  background:
+    radial-gradient(ellipse 900px 500px at 78% -10%, rgba(63,191,176,.14), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 5% 110%, rgba(201,154,58,.13), transparent 60%),
+    var(--ink);
+  border-bottom:1px solid var(--line);
+}
+.hero-inner{max-width:1080px;margin:0 auto;padding:0 28px;}
+.byline-top{
+  font-family:var(--mono);font-size:.74rem;letter-spacing:.14em;color:var(--text-mute);
+  text-transform:uppercase;margin-bottom:18px;
+  opacity:0;animation:fadeUp .7s ease .05s forwards;
+}
+h1.title{
+  font-size:clamp(2.6rem,6vw,4.6rem);
+  line-height:1.02;
+  letter-spacing:-.01em;
+  margin-bottom:6px;
+  opacity:0;animation:fadeUp .8s ease .15s forwards;
+}
+.title em{font-style:italic;color:var(--gold-bright);}
+.subtitle{
+  font-family:var(--serif);font-style:italic;font-weight:500;
+  font-size:clamp(1.1rem,2.2vw,1.5rem);
+  color:var(--teal);margin-bottom:26px;
+  opacity:0;animation:fadeUp .8s ease .28s forwards;
+}
+.hero-lede{
+  max-width:600px;color:var(--text-light);font-size:1.08rem;margin-bottom:10px;
+  opacity:0;animation:fadeUp .8s ease .4s forwards;
+}
+.authors-line{
+  font-family:var(--mono);font-size:.8rem;color:var(--text-mute);margin-bottom:42px;
+  opacity:0;animation:fadeUp .8s ease .5s forwards;
+}
+.authors-line b{color:var(--paper);font-weight:500;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+
+.hero-diagram-wrap{
+  opacity:0;animation:fadeUp 1s ease .6s forwards;
+  border-top:1px dashed var(--line);
+  padding-top:28px;
+}
+.hero-diagram-cap{font-family:var(--mono);font-size:.7rem;color:var(--text-mute);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;}
+
+/* particle keyframes for hero (cx/cy travel) */
+@keyframes flowToI{0%{cx:300;cy:130;opacity:0;}8%{opacity:1;}50%{cx:500;cy:62;}100%{cx:706;cy:42;opacity:0;}}
+@keyframes flowToW{0%{cx:300;cy:130;opacity:0;}8%{opacity:1;}100%{cx:706;cy:130;opacity:0;}}
+@keyframes flowToS{0%{cx:300;cy:130;opacity:0;}8%{opacity:1;}50%{cx:500;cy:198;}100%{cx:706;cy:218;opacity:0;}}
+.p-i{animation:flowToI 2.6s linear infinite;}
+.p-w{animation:flowToW 2.6s linear infinite;}
+.p-s{animation:flowToS 2.6s linear infinite;}
+.coin-pulse{animation:coinPulse 2.6s ease-in-out infinite;transform-origin:center;}
+@keyframes coinPulse{0%,70%{transform:scale(1);}80%{transform:scale(1.18);}100%{transform:scale(1);}}
+
+/* ============ SECTION GENERIC ============ */
+section{padding:78px 0;}
+.section-head{max-width:680px;margin-bottom:44px;}
+.section-head h2{font-size:clamp(1.7rem,3.4vw,2.5rem);}
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.in-view{opacity:1;transform:translateY(0);}
+
+/* intro definitions row */
+.def-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:30px;}
+.def-card{
+  background:var(--ink-2);border:1px solid var(--line);border-radius:10px;padding:18px 18px 16px;
+}
+.def-card .letter{
+  font-family:var(--mono);font-size:.95rem;font-weight:600;
+  width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  margin-bottom:10px;
+}
+.def-card.improve .letter{background:rgba(63,191,176,.16);color:var(--teal);}
+.def-card.wrap .letter{background:rgba(201,154,58,.16);color:var(--gold-bright);}
+.def-card.sell .letter{background:rgba(155,123,196,.18);color:var(--plum);}
+.def-card h3{font-size:1.05rem;color:var(--paper);margin-bottom:6px;}
+.def-card p{font-size:.92rem;color:var(--text-mute);margin:0;}
+@media (max-width:760px){.def-row{grid-template-columns:1fr;}}
+
+.metaphor{
+  font-family:var(--serif);font-style:italic;font-size:1.2rem;color:var(--paper);
+  border-left:3px solid var(--gold);padding-left:18px;margin:36px 0 0;max-width:620px;
+}
+
+/* ============ STRATEGY CARDS ============ */
+.strategy{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:46px;
+  align-items:center;
+  padding:54px 0;
+  border-bottom:1px solid var(--line);
+}
+.strategy:last-child{border-bottom:none;}
+.strategy.flip .text-col{order:2;}
+.strategy.flip .visual-col{order:1;}
+@media (max-width:840px){
+  .strategy,.strategy.flip{grid-template-columns:1fr;}
+  .strategy.flip .text-col,.strategy.flip .visual-col{order:initial;}
+}
+.tab-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;
+  padding:5px 10px;border-radius:5px;margin-bottom:14px;
+}
+.tab-badge .dot{width:8px;height:8px;border-radius:50%;}
+#improve .tab-badge{background:rgba(63,191,176,.12);color:var(--teal);}
+#improve .tab-badge .dot{background:var(--teal);}
+#wrap .tab-badge{background:rgba(201,154,58,.13);color:var(--gold-bright);}
+#wrap .tab-badge .dot{background:var(--gold-bright);}
+#sell .tab-badge{background:rgba(155,123,196,.15);color:var(--plum);}
+#sell .tab-badge .dot{background:var(--plum);}
+
+.strategy h3{font-size:1.9rem;margin-bottom:12px;}
+.strategy p{color:var(--text-light);font-size:.99rem;}
+.owner-tag{
+  display:inline-block;margin-top:14px;font-family:var(--mono);font-size:.74rem;
+  color:var(--text-mute);border:1px dashed var(--line);padding:4px 10px;border-radius:5px;
+}
+
+.stat-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;}
+.stat-card{
+  background:var(--paper);color:var(--text-dark);
+  border-radius:6px;padding:11px 13px;min-width:135px;flex:1;
+  box-shadow:0 6px 16px rgba(0,0,0,.25);
+}
+.stat-card .num{font-family:var(--mono);font-weight:600;font-size:1.05rem;display:block;}
+.stat-card .lab{font-size:.74rem;color:#5b6678;}
+#improve .stat-card .num{color:#1c7f73;}
+#wrap .stat-card .num{color:#9a7220;}
+#sell .stat-card .num{color:#6a4f96;}
+
+.risk-note{
+  margin-top:20px;font-family:var(--mono);font-size:.78rem;color:var(--rust);
+  border-left:2px solid var(--rust);padding-left:10px;
+}
+
+/* visual column boxes */
+.visual-box{
+  background:var(--ink-2);border:1px solid var(--line);border-radius:14px;
+  padding:26px;min-height:260px;display:flex;flex-direction:column;justify-content:center;gap:14px;
+}
+.visual-cta{
+  align-self:flex-start;font-family:var(--mono);font-size:.72rem;letter-spacing:.05em;
+  background:none;border:1px solid var(--line);color:var(--text-mute);
+  padding:7px 12px;border-radius:6px;transition:.2s;
+}
+.visual-cta:hover{border-color:var(--gold-bright);color:var(--gold-bright);}
+
+/* ---- improve viz: bars ---- */
+.bar-track{display:flex;align-items:flex-end;gap:30px;height:120px;}
+.bar-col{display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;justify-content:flex-end;height:100%;}
+.bar{width:100%;border-radius:5px 5px 0 0;transition:height .6s cubic-bezier(.2,.8,.2,1);position:relative;}
+.bar.before{background:#3a4a5c;height:100%;}
+.bar.after{background:var(--teal);height:46%;}
+.bar.slack{background:var(--gold-bright);height:54%;transition:height .6s ease, opacity .6s ease, transform .6s ease;}
+.bar-col .cap{font-family:var(--mono);font-size:.68rem;color:var(--text-mute);}
+.slack-state{font-family:var(--mono);font-size:.74rem;text-align:center;color:var(--text-mute);min-height:18px;}
+.improve-demo.lost .bar.slack{opacity:.25;transform:translateY(-30px);}
+.improve-demo.captured .bar.slack{height:8%;}
+
+/* ---- wrap viz ---- */
+.wrap-stage{position:relative;height:150px;display:flex;align-items:center;justify-content:center;}
+.product-box{
+  width:96px;height:96px;border-radius:10px;background:var(--paper-2);position:relative;
+  display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.7rem;color:#5b6678;
+  box-shadow:0 8px 22px rgba(0,0,0,.3);
+}
+.ribbon{
+  position:absolute;inset:-10px;border-radius:16px;border:3px solid var(--gold-bright);
+  opacity:0;transition:opacity .5s ease, transform .5s ease;transform:scale(.9);
+}
+.wrap-stage.on .ribbon{opacity:1;transform:scale(1);}
+.feature-chip{
+  position:absolute;font-family:var(--mono);font-size:.62rem;background:var(--ink);color:var(--gold-bright);
+  border:1px solid var(--gold-bright);padding:3px 7px;border-radius:12px;opacity:0;transition:opacity .4s ease, transform .4s ease;
+}
+.wrap-stage.on .feature-chip{opacity:1;}
+.fc1{top:6px;left:6px;transform:translateY(-6px);}
+.wrap-stage.on .fc1{transform:translateY(0);}
+.fc2{top:6px;right:6px;transform:translateY(-6px);transition-delay:.1s;}
+.wrap-stage.on .fc2{transform:translateY(0);}
+.fc3{bottom:6px;left:50%;transform:translate(-50%,6px);transition-delay:.2s;}
+.wrap-stage.on .fc3{transform:translate(-50%,0);}
+.price-tag{font-family:var(--mono);text-align:center;margin-top:14px;color:var(--text-mute);font-size:.85rem;}
+.price-tag b{color:var(--gold-bright);font-size:1.15rem;}
+
+/* ---- sell viz ---- */
+.sell-stage{display:flex;align-items:center;justify-content:center;gap:18px;height:130px;}
+.sell-pack{font-family:var(--mono);font-size:.7rem;color:var(--text-mute);text-align:center;}
+.sell-icon{width:62px;height:62px;border-radius:8px;background:var(--paper-2);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 6px;}
+.sell-arrow{font-size:1.6rem;color:var(--text-mute);}
+.sell-receive .sell-icon{transition:transform .35s ease;}
+.toggle-row{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px;font-family:var(--mono);font-size:.74rem;color:var(--text-mute);}
+.switch{position:relative;width:44px;height:24px;background:#243042;border-radius:14px;border:1px solid var(--line);cursor:pointer;}
+.switch .knob{position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:var(--plum);transition:left .25s ease;}
+.switch.on .knob{left:23px;background:var(--gold-bright);}
+
+/* ============ FRAMEWORK SWITCHBOARD ============ */
+.board{
+  background:var(--ink-2);border:1px solid var(--line);border-radius:16px;padding:8px;
+  display:grid;grid-template-columns:170px 1fr;gap:0;overflow:hidden;
+}
+@media (max-width:700px){.board{grid-template-columns:1fr;}}
+.board-tabs{display:flex;flex-direction:column;padding:14px;gap:6px;border-right:1px solid var(--line);}
+@media (max-width:700px){.board-tabs{flex-direction:row;border-right:none;border-bottom:1px solid var(--line);}}
+.board-tab{
+  background:transparent;border:1px solid transparent;color:var(--text-mute);
+  font-family:var(--mono);font-size:.78rem;text-align:left;padding:10px 12px;border-radius:8px;
+  display:flex;align-items:center;gap:8px;letter-spacing:.04em;
+}
+.board-tab .dot{width:7px;height:7px;border-radius:50%;background:var(--text-mute);}
+.board-tab.active{background:rgba(255,255,255,.05);color:var(--paper);border-color:var(--line);}
+.board-tab[data-k="improve"].active .dot{background:var(--teal);}
+.board-tab[data-k="wrap"].active .dot{background:var(--gold-bright);}
+.board-tab[data-k="sell"].active .dot{background:var(--plum);}
+.board-rows{padding:26px 30px;}
+.board-row{display:grid;grid-template-columns:190px 1fr;gap:18px;padding:14px 0;border-bottom:1px solid var(--line);}
+.board-row:last-child{border-bottom:none;}
+@media (max-width:560px){.board-row{grid-template-columns:1fr;gap:4px;}}
+.board-row .field-label{font-family:var(--mono);font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--text-mute);}
+.board-row .field-value{color:var(--text-light);font-size:.95rem;transition:opacity .25s ease;}
+.field-value.fading{opacity:0;}
+
+/* ============ SIMULATOR ============ */
+.sim-shell{background:var(--ink-2);border:1px solid var(--line);border-radius:18px;padding:32px;}
+.sim-tabs{display:flex;gap:10px;margin-bottom:26px;flex-wrap:wrap;}
+.sim-tab{
+  flex:1;min-width:140px;background:transparent;border:1px solid var(--line);color:var(--text-mute);
+  padding:12px 14px;border-radius:10px;font-family:var(--mono);font-size:.8rem;text-align:left;
+}
+.sim-tab b{display:block;font-family:var(--sans);color:var(--paper);font-size:.95rem;font-weight:600;margin-bottom:2px;}
+.sim-tab.active{border-color:var(--gold-bright);background:rgba(201,154,58,.07);}
+.sim-tab[data-k="improve"].active{border-color:var(--teal);background:rgba(63,191,176,.07);}
+.sim-tab[data-k="sell"].active{border-color:var(--plum);background:rgba(155,123,196,.08);}
+
+.sim-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:36px;}
+@media (max-width:840px){.sim-grid{grid-template-columns:1fr;}}
+
+.slider-block{margin-bottom:20px;}
+.slider-block label{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.78rem;color:var(--text-mute);margin-bottom:8px;}
+.slider-block output{color:var(--paper);font-weight:600;}
+input[type=range]{width:100%;accent-color:var(--gold-bright);height:4px;}
+
+.machine-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ledger-readout{
+  background:var(--paper);color:var(--text-dark);border-radius:10px;padding:18px 20px;width:100%;
+  text-align:center;box-shadow:0 10px 28px rgba(0,0,0,.3);margin-top:14px;
+}
+.ledger-readout .cap{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:#6b7785;}
+.ledger-readout .big{font-family:var(--mono);font-size:2rem;font-weight:600;margin:2px 0;}
+.ledger-sub{font-family:var(--mono);font-size:.74rem;color:#6b7785;}
+.ledger-sub b{color:var(--rust);}
+.sim-risk{margin-top:16px;font-family:var(--mono);font-size:.76rem;color:var(--rust);border-left:2px solid var(--rust);padding-left:10px;}
+
+@keyframes flowMachine{0%{cx:64;opacity:0;}10%{opacity:1;}90%{opacity:1;}100%{cx:386;opacity:0;}}
+.particle{animation:flowMachine linear infinite;}
+
+/* ============ CYCLE ============ */
+.cycle-wrap{display:flex;align-items:center;gap:50px;flex-wrap:wrap;}
+.cycle-svg{flex:0 0 260px;}
+.cycle-text{flex:1;min-width:260px;}
+.spin{animation:spinSlow 26s linear infinite;transform-origin:130px 130px;}
+@keyframes spinSlow{to{transform:rotate(360deg);}}
+
+/* ============ SIDEBAR FEATURE ============ */
+.feature-box{
+  background:linear-gradient(160deg,var(--ink-2),var(--ink));
+  border:1px solid var(--line);border-radius:18px;padding:40px;
+  position:relative;overflow:hidden;
+}
+.feature-box::before{
+  content:"";position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;
+  background:radial-gradient(circle,rgba(201,154,58,.18),transparent 70%);
+}
+.feature-kicker{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;color:var(--gold-bright);text-transform:uppercase;}
+.feature-box h2{margin-top:8px;}
+.principle-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:30px;}
+@media (max-width:760px){.principle-grid{grid-template-columns:1fr;}}
+.principle{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;padding:18px;}
+.principle .pn{font-family:var(--mono);font-size:.74rem;color:var(--gold-bright);}
+.principle h4{font-family:var(--serif);color:var(--paper);font-size:1.08rem;margin:6px 0 8px;}
+.principle p{font-size:.88rem;color:var(--text-mute);margin:0;}
+.feature-credit{margin-top:24px;font-family:var(--mono);font-size:.78rem;color:var(--text-mute);}
+
+/* ============ AUTHORS ============ */
+.author-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+@media (max-width:880px){.author-grid{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:520px){.author-grid{grid-template-columns:1fr;}}
+.author-card{text-align:left;}
+.avatar{
+  width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-weight:600;font-size:1.1rem;color:var(--ink);margin-bottom:12px;
+}
+.author-card h4{font-size:1rem;color:var(--paper);margin:0 0 4px;font-family:var(--sans);font-weight:600;}
+.author-card p{font-size:.83rem;color:var(--text-mute);margin:0;}
+
+/* ============ FOOTER ============ */
+footer{border-top:1px solid var(--line);padding:36px 0 50px;}
+footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+footer p{font-family:var(--mono);font-size:.74rem;color:var(--text-mute);margin:0;}
+</style>
+</head>
+<body>
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    <span class="hot">IMPROVE</span><span>cheaper, faster operations</span>
+    <span class="hot">WRAP</span><span>customers pay more, or buy more</span>
+    <span class="hot">SELL</span><span>a new revenue line</span>
+    <span class="hot">IMPROVE</span><span>cheaper, faster operations</span>
+    <span class="hot">WRAP</span><span>customers pay more, or buy more</span>
+    <span class="hot">SELL</span><span>a new revenue line</span>
+  </div>
+</div>
+
+<nav class="quicknav" aria-label="Jump to strategy">
+  <a href="#improve" title="Improving">I</a>
+  <a href="#wrap" title="Wrapping">W</a>
+  <a href="#sell" title="Selling">S</a>
+  <a href="#simulator" title="Run the numbers">$</a>
+</nav>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="byline-top">Rotman Management · Fall 2023</div>
+    <h1 class="title">Creating Value<br>From <em>Data</em></h1>
+    <div class="subtitle">A Monetization Framework</div>
+    <p class="hero-lede">Every organization should make more money from its data than it spends managing it. The instinct is to think that means selling data. It rarely does — there are two quieter, more common paths that get there first.</p>
+    <div class="authors-line">By <b>Barbara H. Wixom</b>, <b>Cynthia M. Beath</b> &amp; <b>Leslie Owens</b></div>
+
+    <div class="hero-diagram-wrap">
+      <div class="hero-diagram-cap">One source, three routes to the bottom line</div>
+      <svg viewBox="0 0 900 260" role="img" aria-label="Diagram: data flows from a single source into three routes — Improve, Wrap, and Sell — each ending in value.">
+        <rect x="18" y="104" width="150" height="52" rx="9" fill="var(--paper)"></rect>
+        <text x="93" y="135" text-anchor="middle" font-family="IBM Plex Mono" font-size="13" font-weight="600" fill="#1B2430">YOUR DATA</text>
+
+        <path d="M168,130 C220,130 250,130 300,130" stroke="var(--line)" stroke-width="2" fill="none"></path>
+        <path d="M300,130 C420,130 420,42 706,42" stroke="var(--line)" stroke-width="2" fill="none"></path>
+        <path d="M300,130 L706,130" stroke="var(--line)" stroke-width="2" fill="none"></path>
+        <path d="M300,130 C420,130 420,218 706,218" stroke="var(--line)" stroke-width="2" fill="none"></path>
+
+        <circle class="p-i" cx="300" cy="130" r="4.5" fill="var(--teal)"></circle>
+        <circle class="p-i" cx="300" cy="130" r="4.5" fill="var(--teal)" style="animation-delay:-1.3s"></circle>
+        <circle class="p-w" cx="300" cy="130" r="4.5" fill="var(--gold-bright)"></circle>
+        <circle class="p-w" cx="300" cy="130" r="4.5" fill="var(--gold-bright)" style="animation-delay:-1.3s"></circle>
+        <circle class="p-s" cx="300" cy="130" r="4.5" fill="var(--plum)"></circle>
+        <circle class="p-s" cx="300" cy="130" r="4.5" fill="var(--plum)" style="animation-delay:-1.3s"></circle>
+
+        <rect x="706" y="20" width="108" height="44" rx="8" fill="var(--paper)"></rect>
+        <text x="760" y="47" text-anchor="middle" font-family="IBM Plex Mono" font-size="11.5" font-weight="600" fill="#1c7f73">IMPROVE</text>
+        <circle class="coin-pulse" cx="848" cy="42" r="16" fill="var(--teal)"></circle>
+        <text x="848" y="46" text-anchor="middle" font-family="IBM Plex Mono" font-size="13" fill="#06231f">$</text>
+
+        <rect x="706" y="108" width="108" height="44" rx="8" fill="var(--paper)"></rect>
+        <text x="760" y="135" text-anchor="middle" font-family="IBM Plex Mono" font-size="11.5" font-weight="600" fill="#9a7220">WRAP</text>
+        <circle class="coin-pulse" cx="848" cy="130" r="16" fill="var(--gold-bright)" style="animation-delay:-.6s"></circle>
+        <text x="848" y="134" text-anchor="middle" font-family="IBM Plex Mono" font-size="13" fill="#3a2a05">$</text>
+
+        <rect x="706" y="196" width="108" height="44" rx="8" fill="var(--paper)"></rect>
+        <text x="760" y="223" text-anchor="middle" font-family="IBM Plex Mono" font-size="11.5" font-weight="600" fill="#6a4f96">SELL</text>
+        <circle class="coin-pulse" cx="848" cy="218" r="16" fill="var(--plum)" style="animation-delay:-1.1s"></circle>
+        <text x="848" y="222" text-anchor="middle" font-family="IBM Plex Mono" font-size="13" fill="#241a33">$</text>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section id="intro" class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Why the word makes people nervous</div>
+      <h2>"Data monetization" isn't a euphemism for selling data</h2>
+      <p class="lede">Plenty of organizations — especially nonprofits and public agencies — flinch at the phrase, picturing shady data brokers. That reaction closes off two of the three real ways data turns into money, and they're the two most organizations are already halfway doing.</p>
+    </div>
+
+    <div class="def-row reveal">
+      <div class="def-card improve">
+        <div class="letter">I</div>
+        <h3>Improving</h3>
+        <p>Use data to make existing work cheaper, faster, or less error-prone.</p>
+      </div>
+      <div class="def-card wrap">
+        <div class="letter">W</div>
+        <h3>Wrapping</h3>
+        <p>Use data to make a product worth more — so customers pay more, or buy more.</p>
+      </div>
+      <div class="def-card sell">
+        <div class="letter">S</div>
+        <h3>Selling</h3>
+        <p>Trade an information solution directly for money, in cash or in kind.</p>
+      </div>
+    </div>
+
+    <p class="metaphor reveal">Mixing up the playbooks is like calling a landscaper to fix your dishwasher. Each approach needs its own owner, its own tools, and its own way of proving the money actually showed up.</p>
+  </section>
+
+  <section id="strategies" class="wrap" style="padding-top:0;">
+
+    <article class="strategy reveal" id="improve">
+      <div class="text-col">
+        <div class="tab-badge"><span class="dot"></span> Strategy — Improving</div>
+        <h3>Make the work itself cheaper</h3>
+        <p>This is the oldest, most familiar route — descended from the 1990s business-process-reengineering movement. Data exposes where a process is slow or wasteful, and fixing it creates <em>slack</em>: extra time, lower cost, fewer errors.</p>
+        <p>The catch many teams miss: slack isn't money. It only becomes money once someone deliberately captures it — cutting a budget line, reassigning freed-up hours, shrinking a headcount. Measure the efficiency gain, then go claim it. Skip the second step, and the data hasn't been monetized at all; it's just made some employee's day a little easier.</p>
+        <span class="owner-tag">Owned by: the process owner</span>
+        <div class="stat-row">
+          <div class="stat-card"><span class="num">~$400M/yr</span><span class="lab">UPS — optimized delivery routes</span></div>
+          <div class="stat-card"><span class="num">$27M+</span><span class="lab">Columbia Sportswear — inventory saved</span></div>
+          <div class="stat-card"><span class="num">57% faster</span><span class="lab">Trinity Health — nurse response time</span></div>
+        </div>
+        <p class="risk-note">⚠ Risk — the value never gets claimed. Efficiency turns into employee breathing room instead of dollars.</p>
+      </div>
+      <div class="visual-col">
+        <div class="visual-box">
+          <div class="bar-track improve-demo lost" id="improveDemo">
+            <div class="bar-col">
+              <div class="bar before"></div>
+              <div class="cap">BEFORE</div>
+            </div>
+            <div class="bar-col">
+              <div class="bar after"></div>
+              <div class="cap">AFTER</div>
+            </div>
+            <div class="bar-col">
+              <div class="bar slack"></div>
+              <div class="cap">FREED-UP TIME</div>
+            </div>
+          </div>
+          <div class="slack-state" id="slackStateLabel">→ floats away as unclaimed slack</div>
+          <button class="visual-cta" id="slackToggle">See what happens if it's captured →</button>
+        </div>
+      </div>
+    </article>
+
+    <article class="strategy flip reveal" id="wrap">
+      <div class="text-col">
+        <div class="tab-badge"><span class="dot"></span> Strategy — Wrapping</div>
+        <h3>Make the product worth more</h3>
+        <p>Wrapping bolts data-fuelled features onto something you already sell — a dashboard, a score, an alert, a recommendation — so customers value it more. "Product" is broad here: a good, a service, an elevator, even an insurance plan.</p>
+        <p>Realizing the value takes two checks: did customers actually notice (loyalty scores up, more enthusiastic referrals), and did the organization then cash that in — a higher price, more units sold, more related sales, or just slower erosion of a declining line. A wrap that delights customers but never reaches the price list hasn't monetized anything yet.</p>
+        <span class="owner-tag">Owned by: the product owner</span>
+        <div class="stat-row">
+          <div class="stat-card"><span class="num">Schindler</span><span class="lab">elevator performance dashboards</span></div>
+          <div class="stat-card"><span class="num">World Bank</span><span class="lab">donor-impact portals</span></div>
+          <div class="stat-card"><span class="num">Pampers</span><span class="lab">wet-diaper &amp; sleep alerts</span></div>
+        </div>
+        <p class="risk-note">⚠ Risk — the wrap backfires, and the extra clutter actually drags down how customers feel about the core product.</p>
+      </div>
+      <div class="visual-col">
+        <div class="visual-box">
+          <div class="wrap-stage" id="wrapStage">
+            <div class="ribbon"></div>
+            <div class="feature-chip fc1">DASHBOARD</div>
+            <div class="feature-chip fc2">ALERT</div>
+            <div class="feature-chip fc3">SCORE</div>
+            <div class="product-box">PRODUCT</div>
+          </div>
+          <div class="price-tag">List price: <b id="priceVal">$40</b></div>
+          <button class="visual-cta" id="wrapToggle">Wrap it with data →</button>
+        </div>
+      </div>
+    </article>
+
+    <article class="strategy reveal" id="sell">
+      <div class="text-col">
+        <div class="tab-badge"><span class="dot"></span> Strategy — Selling</div>
+        <h3>Trade the data itself</h3>
+        <p>The most literal route, and the one people default to first. An "information solution" is a standalone product built from data — sold for scarce insight, speed-to-market, clever algorithms, or just a better interface than the alternative.</p>
+        <p>It doesn't have to be cash. Retailers have swapped point-of-sale data for analytics reports since the late 1970s — that's still a financial transaction, and both sides have to keep deciding it's worth the exchange.</p>
+        <span class="owner-tag">Owned by: the information-solution owner</span>
+        <div class="stat-row">
+          <div class="stat-card"><span class="num">Since 1970s</span><span class="lab">Retailers ⇄ IRI — POS data exchange</span></div>
+          <div class="stat-card"><span class="num">Bloomberg</span><span class="lab">market data &amp; trading subscription</span></div>
+          <div class="stat-card"><span class="num">IBM Weather</span><span class="lab">forecast data, sold via API</span></div>
+        </div>
+        <p class="risk-note">⚠ Risk — it's a new business venture, with a new business's risk: substitutes and new entrants can undercut it fast.</p>
+      </div>
+      <div class="visual-col">
+        <div class="visual-box">
+          <div class="sell-stage">
+            <div class="sell-pack">
+              <div class="sell-icon">🗂️</div>
+              Data product
+            </div>
+            <div class="sell-arrow">⇄</div>
+            <div class="sell-pack sell-receive">
+              <div class="sell-icon" id="sellIcon">💰</div>
+              <span id="sellLabel">Cash</span>
+            </div>
+          </div>
+          <div class="toggle-row">
+            Cash
+            <div class="switch" id="sellSwitch" role="switch" aria-checked="false" tabindex="0" aria-label="Toggle between cash sale and barter"><div class="knob"></div></div>
+            Barter
+          </div>
+        </div>
+      </div>
+    </article>
+
+  </section>
+
+  <section id="framework" class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Side by side</div>
+      <h2>The Improve–Wrap–Sell framework</h2>
+      <p class="lede">Same goal — money from data — three completely different jobs. Click a strategy to see how its rules change.</p>
+    </div>
+
+    <div class="board reveal">
+      <div class="board-tabs" role="tablist" aria-label="Choose a strategy">
+        <button class="board-tab active" data-k="improve" role="tab" aria-selected="true"><span class="dot"></span> Improving</button>
+        <button class="board-tab" data-k="wrap" role="tab" aria-selected="false"><span class="dot"></span> Wrapping</button>
+        <button class="board-tab" data-k="sell" role="tab" aria-selected="false"><span class="dot"></span> Selling</button>
+      </div>
+      <div class="board-rows">
+        <div class="board-row"><div class="field-label">Value is created by</div><div class="field-value" data-f="created">Data making a process faster, cheaper, or better — which generates slack</div></div>
+        <div class="board-row"><div class="field-label">Value is realized when</div><div class="field-value" data-f="realized">That slack is actually removed or redirected, not just absorbed</div></div>
+        <div class="board-row"><div class="field-label">Measured by</div><div class="field-value" data-f="measured">Movement in the bottom line</div></div>
+        <div class="board-row"><div class="field-label">Accountable owner</div><div class="field-value" data-f="owner">The process owner</div></div>
+        <div class="board-row"><div class="field-label">Watch out for</div><div class="field-value" data-f="risk">Talking about the improvement without ever acting on it</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="simulator" class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Try it yourself</div>
+      <h2>Run the numbers on your own data</h2>
+      <p class="lede">Pick a path, move the sliders, and watch the ledger respond. The Improving tab keeps a separate tally for value created versus value actually banked — because that gap is where most data-monetization plans quietly die.</p>
+    </div>
+
+    <div class="sim-shell reveal">
+      <div class="sim-tabs" role="tablist" aria-label="Choose a strategy to simulate">
+        <button class="sim-tab active" data-k="improve"><b>Improving</b>cut a cost or a delay</button>
+        <button class="sim-tab" data-k="wrap"><b>Wrapping</b>raise price or demand</button>
+        <button class="sim-tab" data-k="sell"><b>Selling</b>open a new revenue line</button>
+      </div>
+
+      <div class="sim-grid">
+        <div class="sim-inputs">
+
+          <div class="sim-panel" data-panel="improve">
+            <div class="slider-block">
+              <label>Hours saved per person, per week <output id="imp_hours_out">5</output></label>
+              <input type="range" id="imp_hours" min="1" max="20" value="5">
+            </div>
+            <div class="slider-block">
+              <label>People doing that work <output id="imp_people_out">50</output></label>
+              <input type="range" id="imp_people" min="1" max="500" value="50">
+            </div>
+            <div class="slider-block">
+              <label>Fully-loaded cost per hour <output id="imp_cost_out">$45</output></label>
+              <input type="range" id="imp_cost" min="15" max="150" value="45">
+            </div>
+            <div class="slider-block">
+              <label>Share of slack actually captured <output id="imp_capture_out">40%</output></label>
+              <input type="range" id="imp_capture" min="0" max="100" value="40">
+            </div>
+          </div>
+
+          <div class="sim-panel" data-panel="wrap" style="display:none;">
+            <div class="slider-block">
+              <label>Customers who'll feel the wrap <output id="wrp_cust_out">5,000</output></label>
+              <input type="range" id="wrp_cust" min="100" max="50000" step="100" value="5000">
+            </div>
+            <div class="slider-block">
+              <label>Average revenue per customer / yr <output id="wrp_rev_out">$300</output></label>
+              <input type="range" id="wrp_rev" min="20" max="2000" step="10" value="300">
+            </div>
+            <div class="slider-block">
+              <label>Price or demand lift from the wrap <output id="wrp_lift_out">8%</output></label>
+              <input type="range" id="wrp_lift" min="0" max="40" value="8">
+            </div>
+          </div>
+
+          <div class="sim-panel" data-panel="sell" style="display:none;">
+            <div class="slider-block">
+              <label>Subscribers to the information solution <output id="sel_subs_out">250</output></label>
+              <input type="range" id="sel_subs" min="10" max="5000" value="250">
+            </div>
+            <div class="slider-block">
+              <label>Annual price per subscription <output id="sel_price_out">$6,000</output></label>
+              <input type="range" id="sel_price" min="200" max="50000" step="100" value="6000">
+            </div>
+            <div class="slider-block">
+              <label>Erosion from competitors / substitutes <output id="sel_erosion_out">15%</output></label>
+              <input type="range" id="sel_erosion" min="0" max="60" value="15">
+            </div>
+          </div>
+
+        </div>
+
+        <div class="machine-wrap">
+          <svg viewBox="0 0 420 90" width="100%" style="max-width:380px;">
+            <rect x="40" y="32" width="340" height="26" rx="13" fill="var(--ink)" stroke="var(--line)" stroke-width="1.5"></rect>
+            <circle class="particle" id="pa1" cx="64" cy="45" r="4" fill="var(--gold-bright)"></circle>
+            <circle class="particle" id="pa2" cx="64" cy="45" r="4" fill="var(--gold-bright)" style="animation-delay:-.6s"></circle>
+            <circle class="particle" id="pa3" cx="64" cy="45" r="4" fill="var(--gold-bright)" style="animation-delay:-1.2s"></circle>
+            <circle class="particle" id="pa4" cx="64" cy="45" r="4" fill="var(--gold-bright)" style="animation-delay:-1.8s"></circle>
+            <text x="40" y="20" font-family="IBM Plex Mono" font-size="10" fill="var(--text-mute)">DATA IN</text>
+            <text x="320" y="20" font-family="IBM Plex Mono" font-size="10" fill="var(--text-mute)">VALUE OUT</text>
+          </svg>
+
+          <div class="ledger-readout">
+            <div class="cap" id="ledgerCap">Value realized, per year</div>
+            <div class="big" id="ledgerBig">$46,800</div>
+            <div class="ledger-sub" id="ledgerSub">Created $117,000 · <b>$70,200 still unclaimed</b></div>
+          </div>
+          <p class="sim-risk" id="simRisk">⚠ Without step two — actually redirecting the slack — this stays a spreadsheet number, not cash.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="cycle" class="wrap">
+    <div class="cycle-wrap reveal">
+      <svg class="cycle-svg" viewBox="0 0 260 260" role="img" aria-label="Circular diagram: more data use leads to more value, which leads to more data use">
+        <g class="spin">
+          <circle cx="130" cy="130" r="96" fill="none" stroke="var(--line)" stroke-width="2" stroke-dasharray="4 7"></circle>
+        </g>
+        <circle cx="130" cy="130" r="58" fill="var(--ink-2)" stroke="var(--gold)" stroke-width="1.5"></circle>
+        <text x="130" y="124" text-anchor="middle" font-family="Fraunces" font-style="italic" font-size="14" fill="var(--paper)">data is</text>
+        <text x="130" y="144" text-anchor="middle" font-family="Fraunces" font-weight="600" font-size="15" fill="var(--gold-bright)">everybody's business</text>
+
+        <circle cx="130" cy="34" r="5" fill="var(--teal)"></circle>
+        <text x="130" y="16" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" fill="var(--teal)">MORE DATA USE</text>
+
+        <circle cx="219" cy="178" r="5" fill="var(--gold-bright)"></circle>
+        <text x="219" y="200" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" fill="var(--gold-bright)">MORE VALUE</text>
+
+        <circle cx="41" cy="178" r="5" fill="var(--plum)"></circle>
+        <text x="41" y="200" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" fill="var(--plum)">MORE MOMENTUM</text>
+      </svg>
+      <div class="cycle-text">
+        <div class="eyebrow">In closing</div>
+        <h2>A loop that feeds itself</h2>
+        <p>Engaging with data monetization — really tracking whether it's improving, wrapping, or selling its way onto the books — teaches an organization something it can reuse. Each round builds confidence and appetite for the next one: more data use leads to more value, which earns the budget and trust for still more data use. Multiply that across every team, and data monetization stops being a project and becomes a habit. That's the whole idea behind calling it everybody's business.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="sidebar-feature" class="wrap">
+    <div class="feature-box reveal">
+      <div class="feature-kicker">Field note</div>
+      <h2>Banking you don't notice</h2>
+      <p class="lede" style="color:var(--text-light);">Fintech has spent years promising consumers more control over their money — yet most banking apps still feel like a separate errand. One creative studio's view: stop thinking about payments as transactions, and start designing them as something that simply disappears into the rest of the experience.</p>
+      <p style="max-width:680px;color:var(--text-light);">frog's collaboration with J.P. Morgan explores wearables — rings, bracelets, necklaces — built for resorts, casinos, and entertainment venues, where guests want to pay without ever reaching for a phone. The thinking travels well beyond hospitality; healthcare, construction, and virtual goods are already circling the same idea.</p>
+
+      <div class="principle-grid">
+        <div class="principle">
+          <div class="pn">01</div>
+          <h4>Form follows emotion</h4>
+          <p>Skip "form follows function." A payment object people actually want to wear has to connect emotionally first — something tangible to feel proud of, not just useful.</p>
+        </div>
+        <div class="principle">
+          <div class="pn">02</div>
+          <h4>Solve for experience</h4>
+          <p>Staying present has become the real luxury. The best version of invisible banking removes friction from a moment instead of interrupting it with a screen.</p>
+        </div>
+        <div class="principle">
+          <div class="pn">03</div>
+          <h4>Predict the curve, then follow it</h4>
+          <p>Co-build with partners, pilot with a small influential group — like a casino's highest-value guests — and let that group pull the idea toward the mainstream.</p>
+        </div>
+      </div>
+      <div class="feature-credit">— Sean Rhodes, Executive Creative Director at frog, Adjunct Professor of Design Strategy, NYU Tandon School of Engineering</div>
+    </div>
+  </section>
+
+  <section id="authors" class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">About the authors</div>
+      <h2>Who wrote this</h2>
+    </div>
+    <div class="author-grid reveal">
+      <div class="author-card">
+        <div class="avatar" style="background:var(--teal);">BW</div>
+        <h4>Barbara H. Wixom</h4>
+        <p>Principal Research Scientist, MIT Sloan Center for Information Systems Research (MIT CISR); founder of its Data Research Advisory Board.</p>
+      </div>
+      <div class="author-card">
+        <div class="avatar" style="background:var(--gold-bright);">CB</div>
+        <h4>Cynthia M. Beath</h4>
+        <p>Professor Emerita, Information, Risk and Operations Management, McCombs School of Business, University of Texas at Austin.</p>
+      </div>
+      <div class="author-card">
+        <div class="avatar" style="background:var(--plum);">LO</div>
+        <h4>Leslie Owens</h4>
+        <p>Former Senior Lecturer at MIT and former Executive Director of MIT CISR.</p>
+      </div>
+      <div class="author-card">
+        <div class="avatar" style="background:var(--rust);">SR</div>
+        <h4>Sean Rhodes</h4>
+        <p>Executive Creative Director at frog; Adjunct Professor of Design Strategy, NYU Tandon School of Engineering.</p>
+      </div>
+    </div>
+    <p style="margin-top:24px;color:var(--text-mute);font-size:.92rem;max-width:640px;">Wixom, Beath, and Owens are co-authors of <em>Data Is Everybody's Business: The Fundamentals of Data Monetization</em> (MIT Press, 2023).</p>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Adapted for the web from Rotman Management, Fall 2023 · rotmanmagazine.ca</p>
+    <p>Built as an interactive companion piece — not an official Rotman publication</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var fmt0 = new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
+  var fmtPlain = new Intl.NumberFormat('en-US');
+
+  /* ---------- reveal on scroll ---------- */
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('in-view'); io.unobserve(e.target); }
+    });
+  },{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+
+  /* ---------- improve slack toggle ---------- */
+  var slackToggle = document.getElementById('slackToggle');
+  var improveDemo = document.getElementById('improveDemo');
+  var slackLabel = document.getElementById('slackStateLabel');
+  var captured = false;
+  slackToggle.addEventListener('click', function(){
+    captured = !captured;
+    improveDemo.classList.toggle('captured', captured);
+    improveDemo.classList.toggle('lost', !captured);
+    slackLabel.textContent = captured ? '→ redirected into real savings' : '→ floats away as unclaimed slack';
+    slackToggle.textContent = captured ? 'See what happens if it\u2019s lost \u2192' : 'See what happens if it\u2019s captured \u2192';
+  });
+
+  /* ---------- wrap toggle ---------- */
+  var wrapToggle = document.getElementById('wrapToggle');
+  var wrapStage = document.getElementById('wrapStage');
+  var priceVal = document.getElementById('priceVal');
+  var wrapped = false;
+  wrapToggle.addEventListener('click', function(){
+    wrapped = !wrapped;
+    wrapStage.classList.toggle('on', wrapped);
+    priceVal.textContent = wrapped ? '$54' : '$40';
+    wrapToggle.textContent = wrapped ? 'Strip the wrap back off \u2192' : 'Wrap it with data \u2192';
+  });
+
+  /* ---------- sell toggle ---------- */
+  var sellSwitch = document.getElementById('sellSwitch');
+  var sellIcon = document.getElementById('sellIcon');
+  var sellLabel = document.getElementById('sellLabel');
+  function toggleSell(){
+    var on = sellSwitch.classList.toggle('on');
+    sellSwitch.setAttribute('aria-checked', on ? 'true':'false');
+    sellIcon.textContent = on ? '📊' : '💰';
+    sellLabel.textContent = on ? 'Analytics report' : 'Cash';
+  }
+  sellSwitch.addEventListener('click', toggleSell);
+  sellSwitch.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggleSell(); } });
+
+  /* ---------- framework switchboard ---------- */
+  var boardData = {
+    improve: {created:"Data making a process faster, cheaper, or better — which generates slack", realized:"That slack is actually removed or redirected, not just absorbed", measured:"Movement in the bottom line", owner:"The process owner", risk:"Talking about the improvement without ever acting on it"},
+    wrap: {created:"Data-fuelled features raising a product's appeal to customers", realized:"Customers pay more for it, or buy more of it", measured:"Movement in the bottom line", owner:"The product owner", risk:"A wrap that ends up hurting the core product experience"},
+    sell: {created:"Data packaged into a standalone information solution", realized:"New revenue streams start flowing in", measured:"Movement in the bottom line", owner:"The information-solution owner", risk:"Losing ground to substitutes or new entrants"}
+  };
+  var boardTabs = document.querySelectorAll('.board-tab');
+  var boardFields = document.querySelectorAll('.field-value');
+  boardTabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      boardTabs.forEach(function(t){ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+      tab.classList.add('active'); tab.setAttribute('aria-selected','true');
+      var data = boardData[tab.dataset.k];
+      boardFields.forEach(function(f){
+        f.classList.add('fading');
+        setTimeout(function(){
+          f.textContent = data[f.dataset.f];
+          f.classList.remove('fading');
+        },180);
+      });
+    });
+  });
+
+  /* ---------- simulator ---------- */
+  var simTabs = document.querySelectorAll('.sim-tab');
+  var panels = document.querySelectorAll('.sim-panel');
+  var currentSim = 'improve';
+  var ledgerCap = document.getElementById('ledgerCap');
+  var ledgerBig = document.getElementById('ledgerBig');
+  var ledgerSub = document.getElementById('ledgerSub');
+  var simRisk = document.getElementById('simRisk');
+  var particles = [document.getElementById('pa1'),document.getElementById('pa2'),document.getElementById('pa3'),document.getElementById('pa4')];
+
+  var riskText = {
+    improve: "\u26A0 Without step two \u2014 actually redirecting the slack \u2014 this stays a spreadsheet number, not cash.",
+    wrap: "\u26A0 This lift often arrives later, not immediately \u2014 prices and renewal cycles take time to catch up to the wrap.",
+    sell: "\u26A0 A new information product faces a new competitor every year \u2014 build for that, not just for launch day."
+  };
+
+  simTabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      simTabs.forEach(function(t){ t.classList.remove('active'); });
+      tab.classList.add('active');
+      currentSim = tab.dataset.k;
+      panels.forEach(function(p){ p.style.display = (p.dataset.panel===currentSim) ? '' : 'none'; });
+      simRisk.textContent = riskText[currentSim];
+      recalc(true);
+    });
+  });
+
+  function easeCount(el, to){
+    var from = parseFloat(el.dataset.val || '0');
+    var start = performance.now(), dur = 550;
+    function step(now){
+      var t = Math.min((now-start)/dur, 1);
+      var eased = 1 - Math.pow(1-t,3);
+      var val = from + (to-from)*eased;
+      el.textContent = fmt0.format(Math.round(val));
+      if(t<1) requestAnimationFrame(step); else el.dataset.val = String(to);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function setFlowSpeed(intensity){ // 0..1
+    var dur = 2.6 - intensity*1.9; // faster flow for bigger numbers
+    dur = Math.max(0.7, Math.min(2.6, dur));
+    particles.forEach(function(p,i){ p.style.animationDuration = dur+'s'; p.style.opacity = (i < 1+Math.round(intensity*3)) ? '' : '0'; });
+  }
+
+  function bindLive(id, outId, suffix){
+    var el = document.getElementById(id), out = document.getElementById(outId);
+    el.addEventListener('input', function(){
+      out.textContent = (suffix==='$') ? ('$'+fmtPlain.format(el.value)) : (suffix==='%') ? (el.value+'%') : fmtPlain.format(el.value);
+      recalc(false);
+    });
+    // initialize display
+    out.textContent = (suffix==='$') ? ('$'+fmtPlain.format(el.value)) : (suffix==='%') ? (el.value+'%') : fmtPlain.format(el.value);
+  }
+  bindLive('imp_hours','imp_hours_out','');
+  bindLive('imp_people','imp_people_out','');
+  bindLive('imp_cost','imp_cost_out','$');
+  bindLive('imp_capture','imp_capture_out','%');
+  bindLive('wrp_cust','wrp_cust_out','');
+  bindLive('wrp_rev','wrp_rev_out','$');
+  bindLive('wrp_lift','wrp_lift_out','%');
+  bindLive('sel_subs','sel_subs_out','');
+  bindLive('sel_price','sel_price_out','$');
+  bindLive('sel_erosion','sel_erosion_out','%');
+
+  function recalc(snap){
+    if(currentSim==='improve'){
+      var hours = +document.getElementById('imp_hours').value;
+      var people = +document.getElementById('imp_people').value;
+      var cost = +document.getElementById('imp_cost').value;
+      var capture = +document.getElementById('imp_capture').value/100;
+      var gross = hours*52*cost*people;
+      var realized = gross*capture;
+      var unclaimed = gross-realized;
+      ledgerCap.textContent = 'Value realized, per year';
+      if(snap){ ledgerBig.dataset.val = '0'; } 
+      easeCount(ledgerBig, realized);
+      ledgerSub.innerHTML = 'Created '+fmt0.format(gross)+' · <b>'+fmt0.format(unclaimed)+' still unclaimed</b>';
+      setFlowSpeed(Math.min(1, realized/300000));
+    } else if(currentSim==='wrap'){
+      var cust = +document.getElementById('wrp_cust').value;
+      var rev = +document.getElementById('wrp_rev').value;
+      var lift = +document.getElementById('wrp_lift').value/100;
+      var add = cust*rev*lift;
+      ledgerCap.textContent = 'Additional revenue unlocked, per year';
+      if(snap){ ledgerBig.dataset.val = '0'; }
+      easeCount(ledgerBig, add);
+      ledgerSub.innerHTML = 'Across '+fmtPlain.format(cust)+' customers at a '+document.getElementById('wrp_lift').value+'% lift';
+      setFlowSpeed(Math.min(1, add/500000));
+    } else {
+      var subs = +document.getElementById('sel_subs').value;
+      var price = +document.getElementById('sel_price').value;
+      var erosion = +document.getElementById('sel_erosion').value/100;
+      var newRev = subs*price*(1-erosion);
+      ledgerCap.textContent = 'New revenue line, per year';
+      if(snap){ ledgerBig.dataset.val = '0'; }
+      easeCount(ledgerBig, newRev);
+      ledgerSub.innerHTML = fmtPlain.format(subs)+' subscribers · <b>'+document.getElementById('sel_erosion').value+'% lost to competition</b>';
+      setFlowSpeed(Math.min(1, newRev/1000000));
+    }
+  }
+  recalc(true);
+
+  /* ---------- reduced motion: freeze SMIL/CSS loops gracefully ---------- */
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    document.querySelectorAll('.p-i,.p-w,.p-s,.coin-pulse,.particle,.spin,.ticker-track').forEach(function(el){
+      el.style.animation = 'none';
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
