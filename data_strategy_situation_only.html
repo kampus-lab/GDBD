@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week One — A Northwind Mutual Caselet</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap');
+
+:root{
+  --ink:#0c0d10;
+  --paper:#f3efe6;
+  --line:#2a2b30;
+  --muted:#7a7d85;
+  --warn:#a8423a;
+  --card:#17181c;
+  --max:760px;
+  --heat:0;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--ink);
+  color:var(--paper);
+  font-family:'Source Sans 3', sans-serif;
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+  height:100vh;
+  transition:background .8s ease;
+}
+
+.app{ height:100vh; display:flex; flex-direction:column; }
+
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:18px 28px;
+  border-bottom:1px solid var(--line);
+  flex-shrink:0;
+}
+.brand{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:11.5px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--muted);
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.brand .pulse{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--warn);
+  flex-shrink:0;
+  box-shadow:0 0 0 0 rgba(168,66,58,0.6);
+  animation:pulse 2.2s infinite;
+}
+@keyframes pulse{
+  0%{ box-shadow:0 0 0 0 rgba(168,66,58,0.55); }
+  70%{ box-shadow:0 0 0 9px rgba(168,66,58,0); }
+  100%{ box-shadow:0 0 0 0 rgba(168,66,58,0); }
+}
+
+.clock{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:11.5px;
+  color:var(--muted);
+  letter-spacing:.04em;
+}
+
+.heat-track{
+  flex:1;
+  max-width:300px;
+  margin:0 28px;
+  height:3px;
+  background:rgba(243,239,230,0.08);
+  border-radius:2px;
+  overflow:hidden;
+}
+.heat-fill{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#5a6470,var(--warn));
+  transition:width .6s cubic-bezier(.65,0,.35,1);
+}
+
+.stage{ flex:1; position:relative; overflow:hidden; }
+
+.slide{
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  padding:40px 28px 110px;
+  opacity:0;
+  transform:translateY(14px);
+  pointer-events:none;
+  transition:opacity .5s ease, transform .5s cubic-bezier(.65,0,.35,1);
+  overflow-y:auto;
+}
+.slide.active{ opacity:1; transform:translateY(0); pointer-events:auto; }
+
+.slide-inner{ max-width:var(--max); width:100%; margin:auto; }
+
+.tag{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--warn);
+  margin-bottom:16px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.tag .day{
+  background:rgba(168,66,58,0.14);
+  border:1px solid rgba(168,66,58,0.4);
+  padding:3px 9px;
+  border-radius:2px;
+  color:#e08a82;
+}
+
+h1.slide-title{
+  font-family:'Fraunces', serif;
+  font-weight:600;
+  font-size:clamp(26px,4vw,42px);
+  line-height:1.14;
+  margin:0 0 22px;
+  color:var(--paper);
+}
+h1.slide-title em{ font-style:italic; font-weight:400; color:#e08a82; }
+
+.body-text{
+  font-size:16.5px;
+  line-height:1.75;
+  color:#cfd0d3;
+  max-width:660px;
+}
+.body-text + .body-text{ margin-top:16px; }
+.body-text strong{ color:var(--paper); font-weight:600; }
+.body-text.quiet{ color:var(--muted); font-size:14.5px; }
+
+.snippet{
+  margin-top:24px;
+  padding:16px 20px;
+  background:var(--card);
+  border-left:3px solid var(--warn);
+  font-family:'IBM Plex Mono', monospace;
+  font-size:13px;
+  line-height:1.65;
+  color:#d8b9b6;
+  border-radius:2px;
+}
+.snippet .from{
+  display:block;
+  font-size:10.5px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:6px;
+}
+
+.stack{ display:flex; flex-direction:column; gap:10px; margin-top:24px; }
+.stack-item{
+  display:flex;
+  align-items:baseline;
+  gap:14px;
+  padding:13px 16px;
+  background:var(--card);
+  border-radius:3px;
+  border:1px solid var(--line);
+}
+.stack-item .who{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:11px;
+  letter-spacing:.05em;
+  color:var(--muted);
+  min-width:118px;
+  flex-shrink:0;
+}
+.stack-item .what{ font-size:14px; line-height:1.5; color:#d6d7da; }
+
+.closer{
+  margin-top:30px;
+  font-family:'Fraunces', serif;
+  font-style:italic;
+  font-size:18px;
+  color:#e08a82;
+  line-height:1.5;
+}
+
+.bottombar{
+  position:fixed; bottom:0; left:0; right:0;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 28px 20px;
+  background:linear-gradient(0deg, var(--ink) 65%, rgba(12,13,16,0));
+}
+.nav-btn{
+  font-family:'Source Sans 3',sans-serif;
+  font-size:13.5px; font-weight:600;
+  display:flex; align-items:center; gap:6px;
+  background:transparent;
+  border:1px solid var(--line);
+  color:var(--paper);
+  padding:10px 18px;
+  border-radius:30px;
+  cursor:pointer;
+  transition:all .18s;
+}
+.nav-btn:hover:not(:disabled){ border-color:var(--warn); color:#e08a82; }
+.nav-btn:disabled{ opacity:0.25; cursor:default; }
+.nav-btn.primary{ background:var(--warn); border-color:var(--warn); color:#fff; }
+.nav-btn.primary:hover{ background:#8d3530; border-color:#8d3530; color:#fff; }
+
+.dots{ display:flex; gap:6px; }
+.dot{ width:6px;height:6px;border-radius:50%; background:rgba(243,239,230,0.16); cursor:pointer; transition:all .2s; }
+.dot.active{ background:var(--warn); width:18px; border-radius:3px; }
+
+@media (max-width:640px){
+  .heat-track{ display:none; }
+  .topbar{ padding:14px 16px; }
+  .slide{ padding:24px 18px 116px; }
+  .dots{ display:none; }
+  .stack-item{ flex-direction:column; gap:4px; }
+  .stack-item .who{ min-width:auto; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="topbar">
+    <div class="brand"><span class="pulse"></span> Northwind Mutual — internal</div>
+    <div class="heat-track"><div class="heat-fill" id="heatFill"></div></div>
+    <div class="clock" id="clock">MON · DAY 1</div>
+  </div>
+
+  <div class="stage" id="stage"></div>
+
+  <div class="bottombar">
+    <button class="nav-btn" id="prevBtn">← Back</button>
+    <div class="dots" id="dots"></div>
+    <button class="nav-btn primary" id="nextBtn">Continue →</button>
+  </div>
+</div>
+
+<script>
+const slidesData = [
+/* 0 ------------------------------------------------- */
+{
+  day:'MON · 8:14 AM', tag:'Day one',
+  title:'Priya Ramesh starts her new job<br>before her badge even works.',
+  body:[
+    "She's been hired as Northwind Mutual's first Chief Data Officer. The role didn't exist six weeks ago. There's no handover document, no predecessor to call, and no one waiting at her desk — because there isn't one yet, the office move isn't finished.",
+    "Her inbox already has 340 unread messages. The subject lines alone make it clear this isn't a quiet first week."
+  ]
+},
+/* 1 ------------------------------------------------- */
+{
+  day:'MON · 11:40 AM', tag:'First meeting',
+  title:'\u201cWe just need you to sign off on something.\u201d',
+  body:[
+    "Her first meeting is with someone from Legal she hasn't been introduced to yet. He has a slide deck open before she sits down.",
+  ],
+  snippet:{from:'Legal, Mon 11:40 AM', text:'\u201cWe\u2019ve found roughly 4 million customer records that exist in more than one system, with different details in each one. We need a decision today on which version we report to the regulator next month.\u201d'},
+  closing:"She asks for the underlying data. He says it would take about three weeks to pull together, because no one has ever needed to look at all of it in one place before."
+},
+/* 2 ------------------------------------------------- */
+{
+  day:'MON · 2:00 PM', tag:'Same afternoon',
+  title:'The marketing team has been waiting for her, too.',
+  body:[
+    "Before she's processed the morning, the VP of Marketing pulls her into a side room. A competitor launched a new pricing app two weeks ago. Northwind's renewal numbers have started slipping in exactly the regions where that competitor is active.",
+  ],
+  snippet:{from:'VP Marketing, Mon 2:00 PM', text:'\u201cI asked for a list of customers likely to leave us in the next 90 days. I was told it would take six weeks. By then it won\u2019t matter.\u201d'},
+  closing:"Priya doesn't yet know whether six weeks is a real estimate or a number someone picked to make the request go away."
+},
+/* 3 ------------------------------------------------- */
+{
+  day:'TUE · 9:05 AM', tag:'Day two',
+  title:'Three different numbers, one board meeting.',
+  body:[
+    "Overnight, someone forwards her a thread between Finance and the CFO's office. They've noticed that the revenue figure in last quarter's board deck doesn't match the revenue figure in the regulatory filing — which also doesn't match the number the sales team has been quoting internally all year.",
+  ],
+  snippet:{from:'CFO\u2019s office, Tue 9:05 AM', text:'\u201cWe need to know which of these three numbers is correct before the board meets again in eleven days. Ideally before then I\u2019d also like to know how this happened.\u201d'},
+  closing:"No one on the thread can yet say whether this is one mistake or three separate, defensible ways of counting the same thing."
+},
+/* 4 ------------------------------------------------- */
+{
+  day:'TUE · 4:30 PM', tag:'Getting worse',
+  title:'Then the access question shows up.',
+  body:[
+    "An internal audit — already underway before Priya was hired — flags something nobody wants in writing: thousands of employees, across departments that have nothing to do with claims, can open full customer claims files. Including medical details attached to some policies.",
+    "Nobody can explain why. The access permissions were set up gradually, system by system, over roughly a decade, by people who in some cases no longer work at the company."
+  ],
+  closing:"It is unclear whether this is a violation of anything yet — or simply a fact that becomes a violation the moment someone asks the wrong question out loud."
+},
+/* 5 ------------------------------------------------- */
+{
+  day:'WED · 10:00 AM', tag:'Day three',
+  title:'Everyone wants Priya to fix their problem first.',
+  body:[
+    "By Wednesday, four different people have independently told her their issue is the most urgent one in the building."
+  ],
+  stack:[
+    {who:'General Counsel', what:'The access problem is a regulatory exposure right now, every day it goes unaddressed.'},
+    {who:'VP Marketing', what:'Every week without a customer-retention tool is measurable, ongoing revenue loss.'},
+    {who:'CFO\u2019s office', what:'The board needs one trustworthy number in eleven days, full stop.'},
+    {who:'Head of IT', what:'None of the above is fixable without first replacing two systems that are, in his words, \u201cheld together with duct tape.\u201d'},
+  ],
+  closing:"Each of them is asking for a meeting on her calendar this week."
+},
+/* 6 ------------------------------------------------- */
+{
+  day:'WED · 6:50 PM', tag:'End of day three',
+  title:'The budget is smaller than any one of these problems.',
+  body:[
+    "Late Wednesday, Priya finally gets the number she's been chasing since Monday: her total budget for the year, across people, software, and everything else. It is enough to make meaningful progress on roughly one of the four problems she's heard about so far — not all of them, and possibly not even one of them completely.",
+    "She hasn't even met the unit that runs the call centers yet. Or the actuarial team. Or whoever owns the telematics data from the company's new usage-based insurance product, which nobody has mentioned at all this week — which may mean it's fine, or may mean nobody's looked."
+  ]
+},
+/* 7 ------------------------------------------------- */
+{
+  day:'THU · 8:00 AM', tag:'Day four',
+  title:'A reporter calls the press office.',
+  body:[
+    "Thursday morning, the press office forwards Priya a voicemail. A journalist is asking whether Northwind Mutual has experienced \u201cany recent data incidents,\u201d citing an unnamed source. Nobody at Northwind knows what, if anything, the reporter actually has.",
+    "Legal wants to know, urgently, whether this is connected to the access issue from Tuesday. Priya doesn't know. Nobody does — not yet, and possibly not for some time."
+  ],
+  closing:"It is Thursday of her first week."
+},
+/* 8 ------------------------------------------------- */
+{
+  day:'THU · 11:30 AM', tag:'Where this leaves things',
+  title:'Four days in, and the picture is <em>less</em> clear than it was Monday morning.',
+  body:[
+    "Priya now has: a possible reporting discrepancy with a regulator, three conflicting revenue figures ahead of a board meeting in just over a week, a months-long access problem nobody can quite date the start of, a marketing team watching customers leave in real time, an IT lead who says none of it can be fixed without infrastructure work first, and a reporter circling — with no way yet to know if that last one connects to anything else on this list.",
+    "She has one budget. She has not yet had a single uninterrupted hour to think."
+  ],
+  closer:"This is the moment her actual job begins."
+},
+];
+
+/* ---------------- engine ---------------- */
+const stage = document.getElementById('stage');
+const heatFill = document.getElementById('heatFill');
+const clock = document.getElementById('clock');
+const dotsWrap = document.getElementById('dots');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+
+let current = 0;
+const total = slidesData.length;
+
+function buildDots(){
+  dotsWrap.innerHTML='';
+  slidesData.forEach((_,i)=>{
+    const d=document.createElement('div');
+    d.className='dot'+(i===current?' active':'');
+    d.addEventListener('click',()=>goTo(i));
+    dotsWrap.appendChild(d);
+  });
+}
+
+function renderSlide(data){
+  const el = document.createElement('div');
+  el.className='slide';
+  const inner = document.createElement('div');
+  inner.className='slide-inner';
+
+  let html = `
+    <div class="tag"><span class="day">${data.day}</span>${data.tag}</div>
+    <h1 class="slide-title">${data.title}</h1>
+  `;
+  if(data.body){
+    html += data.body.map(p=>`<p class="body-text">${p}</p>`).join('');
+  }
+  if(data.snippet){
+    html += `<div class="snippet"><span class="from">${data.snippet.from}</span>${data.snippet.text}</div>`;
+  }
+  if(data.stack){
+    html += `<div class="stack">${data.stack.map(s=>`
+      <div class="stack-item"><div class="who">${s.who}</div><div class="what">${s.what}</div></div>
+    `).join('')}</div>`;
+  }
+  if(data.closing){
+    html += `<p class="body-text quiet" style="margin-top:18px;">${data.closing}</p>`;
+  }
+  if(data.closer){
+    html += `<p class="closer">${data.closer}</p>`;
+  }
+
+  inner.innerHTML = html;
+  el.appendChild(inner);
+  return el;
+}
+
+function render(){
+  stage.innerHTML='';
+  const el = renderSlide(slidesData[current]);
+  stage.appendChild(el);
+  requestAnimationFrame(()=> el.classList.add('active'));
+
+  clock.textContent = slidesData[current].day;
+  heatFill.style.width = `${(current/(total-1))*100}%`;
+
+  prevBtn.disabled = current===0;
+  nextBtn.textContent = current===total-1 ? 'Restart ↺' : 'Continue →';
+
+  buildDots();
+}
+
+function goTo(i){
+  if(i<0||i>=total) return;
+  current=i;
+  render();
+}
+
+prevBtn.addEventListener('click', ()=> goTo(current-1));
+nextBtn.addEventListener('click', ()=>{
+  if(current===total-1){ goTo(0); } else { goTo(current+1); }
+});
+
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight') goTo(Math.min(current+1,total-1));
+  if(e.key==='ArrowLeft') goTo(Math.max(current-1,0));
+});
+
+render();
+</script>
+</body>
+</html>
