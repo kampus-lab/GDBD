@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inclusive Data Audit</title>
+<style>
+  :root{
+    --paper:#F6F4EF;
+    --ink:#181A1F;
+    --ink-soft:#4A4E58;
+    --line:#DDD8CD;
+    --flag:#C4622D;
+    --flag-soft:#F2E1D3;
+    --marker:#2E5D53;
+    --marker-soft:#DEEAE6;
+    --done:#2E5D53;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+    line-height:1.55;
+  }
+  .sans{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }
+
+  header{
+    max-width:760px;
+    margin:0 auto;
+    padding:90px 24px 40px;
+  }
+  .eyebrow{
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    font-size:12px;
+    color:var(--flag);
+    font-weight:700;
+    margin:0 0 18px;
+  }
+  h1{
+    font-size:clamp(34px,5.5vw,54px);
+    line-height:1.08;
+    margin:0 0 20px;
+    letter-spacing:-0.01em;
+  }
+  h1 em{ font-style:italic; color:var(--flag); }
+  .lede{
+    font-size:19px;
+    color:var(--ink-soft);
+    max-width:60ch;
+    margin:0 0 8px;
+  }
+
+  .meta-panel{
+    max-width:760px;
+    margin:0 auto 50px;
+    padding:0 24px;
+  }
+  .meta-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:20px 22px;
+  }
+  .meta-field label{
+    display:block;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--ink-soft);
+    margin-bottom:5px;
+  }
+  .meta-field input{
+    width:100%;
+    border:none;
+    border-bottom:1px solid var(--line);
+    background:transparent;
+    font-family: Georgia, serif;
+    font-size:15px;
+    padding:4px 2px;
+    color:var(--ink);
+  }
+  .meta-field input:focus{ outline:none; border-bottom-color:var(--flag); }
+
+  .progress-wrap{
+    max-width:760px;
+    margin:0 auto 50px;
+    padding:0 24px;
+  }
+  .progress-bar-track{
+    background:#E5E1D6;
+    height:8px;
+    border-radius:5px;
+    overflow:hidden;
+  }
+  .progress-bar-fill{
+    height:100%;
+    background:var(--marker);
+    width:0%;
+    transition:width .3s ease;
+  }
+  .progress-label{
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-top:8px;
+    display:flex;
+    justify-content:space-between;
+  }
+
+  main{ max-width:760px; margin:0 auto; padding:0 24px 60px; }
+
+  section.category{ margin-bottom:52px; }
+  .cat-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:14px;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:10px;
+    margin-bottom:14px;
+  }
+  .cat-head h2{ font-size:22px; margin:0; letter-spacing:-0.01em; }
+  .cat-count{
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-size:12px;
+    color:var(--ink-soft);
+    letter-spacing:.04em;
+    white-space:nowrap;
+  }
+  .cat-desc{
+    font-size:15px;
+    color:var(--ink-soft);
+    margin:0 0 20px;
+    max-width:58ch;
+  }
+  .questions{
+    margin:0 0 22px;
+    padding-left:0;
+    list-style:none;
+  }
+  .questions li{
+    font-size:15.5px;
+    color:var(--ink-soft);
+    margin-bottom:8px;
+    padding-left:18px;
+    position:relative;
+  }
+  .questions li:before{
+    content:"—";
+    position:absolute;
+    left:0;
+    color:var(--flag);
+  }
+
+  .check-item{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    padding:12px 14px;
+    border:1px solid var(--line);
+    border-radius:7px;
+    margin-bottom:9px;
+    background:#fff;
+    cursor:pointer;
+    transition:background .15s ease, border-color .15s ease;
+  }
+  .check-item:hover{ border-color:var(--marker); }
+  .check-item.checked{
+    background:var(--marker-soft);
+    border-color:var(--marker);
+  }
+  .check-item input{
+    margin-top:3px;
+    width:17px;
+    height:17px;
+    accent-color:var(--marker);
+    flex-shrink:0;
+    cursor:pointer;
+  }
+  .check-item span{
+    font-size:15.5px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    line-height:1.45;
+  }
+  .check-item.checked span{ color:var(--ink-soft); text-decoration:line-through; text-decoration-color:var(--marker); }
+
+  .notes-field{
+    margin-top:14px;
+  }
+  .notes-field label{
+    display:block;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+  }
+  .notes-field textarea{
+    width:100%;
+    min-height:64px;
+    border:1px solid var(--line);
+    border-radius:7px;
+    background:#fff;
+    font-family: Georgia, serif;
+    font-size:15px;
+    padding:10px 12px;
+    resize:vertical;
+    color:var(--ink);
+  }
+  .notes-field textarea:focus{ outline:none; border-color:var(--marker); }
+
+  .quick-box{
+    background:var(--flag-soft);
+    border-radius:8px;
+    padding:22px 24px;
+    margin-bottom:52px;
+  }
+  .quick-box h2{ font-size:20px; margin:0 0 14px; }
+  .quick-box ol{ margin:0; padding-left:20px; }
+  .quick-box li{ font-size:16px; margin-bottom:8px; color:var(--ink); }
+
+  .tracker-table{
+    width:100%;
+    border-collapse:collapse;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-size:13.5px;
+    background:#fff;
+  }
+  .tracker-table th{
+    background:var(--ink);
+    color:#fff;
+    text-align:left;
+    padding:10px 12px;
+    font-weight:600;
+  }
+  .tracker-table td{
+    padding:8px 12px;
+    border-bottom:1px solid var(--line);
+  }
+  .tracker-table input, .tracker-table select{
+    width:100%;
+    border:none;
+    background:transparent;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-size:13.5px;
+    padding:3px 2px;
+  }
+  .tracker-table select{ cursor:pointer; }
+  .status-cell.na select{ color:var(--ink-soft); }
+  .status-not{ color:#a33; }
+  .status-progress{ color:var(--flag); }
+  .status-complete{ color:var(--marker); font-weight:600; }
+
+  .actions-row{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    margin:20px 0 60px;
+  }
+  button.reset-btn{
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-size:13px;
+    background:transparent;
+    border:1px solid var(--line);
+    color:var(--ink-soft);
+    padding:9px 16px;
+    border-radius:6px;
+    cursor:pointer;
+  }
+  button.reset-btn:hover{ border-color:var(--flag); color:var(--flag); }
+  button.print-btn{
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-size:13px;
+    background:var(--ink);
+    border:1px solid var(--ink);
+    color:#fff;
+    padding:9px 16px;
+    border-radius:6px;
+    cursor:pointer;
+  }
+
+  footer{
+    max-width:760px;
+    margin:0 auto;
+    padding:30px 24px 100px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-size:13px;
+    color:var(--ink-soft);
+    border-top:1px solid var(--line);
+  }
+
+  @media (max-width:600px){
+    header{ padding:60px 20px 30px; }
+    .meta-grid{ grid-template-columns:1fr; }
+    .tracker-table{ font-size:12px; }
+  }
+  @media print{
+    .actions-row, .progress-wrap{ display:none; }
+    body{ background:#fff; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow sans">Working document</p>
+  <h1>Inclusive Data <em>Audit</em></h1>
+  <p class="lede">A framework for auditing whose data is represented — and whose is missing — across collection, modeling, and product decisions. Work through each section with your team; check items off as you confirm them.</p>
+</header>
+
+<div class="meta-panel">
+  <div class="meta-grid">
+    <div class="meta-field">
+      <label for="f-team">Product / Team</label>
+      <input type="text" id="f-team" placeholder="e.g. Growth — Onboarding">
+    </div>
+    <div class="meta-field">
+      <label for="f-date">Audit Date</label>
+      <input type="text" id="f-date" placeholder="e.g. July 2026">
+    </div>
+    <div class="meta-field">
+      <label for="f-facilitator">Facilitator</label>
+      <input type="text" id="f-facilitator" placeholder="Name">
+    </div>
+    <div class="meta-field">
+      <label for="f-review">Next Scheduled Review</label>
+      <input type="text" id="f-review" placeholder="e.g. January 2027">
+    </div>
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-bar-track"><div class="progress-bar-fill" id="progress-fill"></div></div>
+  <div class="progress-label sans">
+    <span id="progress-text">0 of 0 checked</span>
+    <span id="progress-pct">0%</span>
+  </div>
+</div>
+
+<main>
+
+  <section class="category">
+    <div class="cat-head">
+      <h2>1. Data Collection</h2>
+      <span class="cat-count sans">before you collect</span>
+    </div>
+    <p class="cat-desc">Complete before collecting any new data, or before reusing an existing dataset.</p>
+    <ul class="questions">
+      <li>Who are we assuming our users are? (age, language, device, ability, income, geography)</li>
+      <li>Who does our collection method exclude by default?</li>
+      <li>What happens to someone who doesn't fit our existing categories?</li>
+      <li>Who collected any data we're reusing, and for what original purpose?</li>
+    </ul>
+    <div class="checklist" data-section="collection">
+      <label class="check-item"><input type="checkbox" data-id="c1"><span>Demographic categories allow self-description or an "other / specify" option</span></label>
+      <label class="check-item"><input type="checkbox" data-id="c2"><span>Collection channel doesn't systematically exclude low-connectivity or low-literacy users</span></label>
+      <label class="check-item"><input type="checkbox" data-id="c3"><span>Consent process is understandable without legal or technical fluency</span></label>
+      <label class="check-item"><input type="checkbox" data-id="c4"><span>We have documented which populations are structurally hard to reach with this method</span></label>
+    </div>
+    <div class="notes-field">
+      <label for="notes-collection">Notes</label>
+      <textarea id="notes-collection" placeholder="Open questions, decisions, follow-ups..."></textarea>
+    </div>
+  </section>
+
+  <section class="category">
+    <div class="cat-head">
+      <h2>2. Representation</h2>
+      <span class="cat-count sans">on the dataset itself</span>
+    </div>
+    <p class="cat-desc">Complete once the dataset exists, before it's used to train or ship anything.</p>
+    <div class="checklist" data-section="representation">
+      <label class="check-item"><input type="checkbox" data-id="r1"><span>Dataset composition is broken down by key demographics (not just total N)</span></label>
+      <label class="check-item"><input type="checkbox" data-id="r2"><span>Sample demographics have been compared against the true target population</span></label>
+      <label class="check-item"><input type="checkbox" data-id="r3"><span>Subgroups with too-small sample sizes are flagged, not silently folded into "other"</span></label>
+      <label class="check-item"><input type="checkbox" data-id="r4"><span>Groups that are present but underweighted by scoring/labeling/ranking are identified</span></label>
+    </div>
+    <div class="notes-field">
+      <label for="notes-representation">Notes</label>
+      <textarea id="notes-representation" placeholder="Open questions, decisions, follow-ups..."></textarea>
+    </div>
+  </section>
+
+  <section class="category">
+    <div class="cat-head">
+      <h2>3. Model / Metric</h2>
+      <span class="cat-count sans">before shipping</span>
+    </div>
+    <p class="cat-desc">Complete before shipping any feature, model, or scoring system.</p>
+    <div class="checklist" data-section="model">
+      <label class="check-item"><input type="checkbox" data-id="m1"><span>Performance is tested disaggregated by subgroup, not just in aggregate</span></label>
+      <label class="check-item"><input type="checkbox" data-id="m2"><span>Success metrics have been checked for embedded bias (e.g. "engagement," "time saved")</span></label>
+      <label class="check-item"><input type="checkbox" data-id="m3"><span>Adversarial / edge-case testing included people outside the "median user" persona</span></label>
+      <label class="check-item"><input type="checkbox" data-id="m4"><span>Fairness testing was reviewed by someone outside the shipping team</span></label>
+    </div>
+    <div class="notes-field">
+      <label for="notes-model">Notes</label>
+      <textarea id="notes-model" placeholder="Open questions, decisions, follow-ups..."></textarea>
+    </div>
+  </section>
+
+  <section class="category">
+    <div class="cat-head">
+      <h2>4. Labor &amp; Process</h2>
+      <span class="cat-count sans">who did the invisible work</span>
+    </div>
+    <p class="cat-desc">Complete when data has been labeled, annotated, or otherwise produced by human labor.</p>
+    <div class="checklist" data-section="labor">
+      <label class="check-item"><input type="checkbox" data-id="l1"><span>Data labelers / annotators are credited and fairly compensated</span></label>
+      <label class="check-item"><input type="checkbox" data-id="l2"><span>A feedback loop exists from annotators back to the team for ambiguous cases</span></label>
+      <label class="check-item"><input type="checkbox" data-id="l3"><span>Affected communities had input on what gets measured, not just on testing the finished product</span></label>
+    </div>
+    <div class="notes-field">
+      <label for="notes-labor">Notes</label>
+      <textarea id="notes-labor" placeholder="Open questions, decisions, follow-ups..."></textarea>
+    </div>
+  </section>
+
+  <section class="category">
+    <div class="cat-head">
+      <h2>5. Governance</h2>
+      <span class="cat-count sans">ongoing practice</span>
+    </div>
+    <p class="cat-desc">Standing practices, not one-time checks.</p>
+    <div class="checklist" data-section="governance">
+      <label class="check-item"><input type="checkbox" data-id="g1"><span>Data provenance is documented and attached to the dataset (source, date, method, known exclusions)</span></label>
+      <label class="check-item"><input type="checkbox" data-id="g2"><span>A recurring review cadence is scheduled (quarterly / biannual)</span></label>
+      <label class="check-item"><input type="checkbox" data-id="g3"><span>There's an accessible channel for users to flag "this doesn't represent me"</span></label>
+      <label class="check-item"><input type="checkbox" data-id="g4"><span>Complaints and harms are tracked by demographic over time, not just in aggregate satisfaction</span></label>
+    </div>
+    <div class="notes-field">
+      <label for="notes-governance">Notes</label>
+      <textarea id="notes-governance" placeholder="Open questions, decisions, follow-ups..."></textarea>
+    </div>
+  </section>
+
+  <div class="quick-box">
+    <h2>Quick version — three questions before every launch</h2>
+    <ol>
+      <li>Who's in our data, and who's structurally left out?</li>
+      <li>If we broke our top metric down by subgroup, would the story change?</li>
+      <li>Who would be hurt first if this dataset's gaps caused an error — and would we find out?</li>
+    </ol>
+  </div>
+
+  <section class="category">
+    <div class="cat-head">
+      <h2>Summary Tracker</h2>
+      <span class="cat-count sans">assign &amp; review</span>
+    </div>
+    <p class="cat-desc">Rate each area and assign an owner and next review date.</p>
+    <table class="tracker-table">
+      <thead>
+        <tr><th>Audit Area</th><th>Status</th><th>Owner</th><th>Next Review</th></tr>
+      </thead>
+      <tbody id="tracker-body">
+        <!-- rows injected by JS -->
+      </tbody>
+    </table>
+  </section>
+
+  <div class="actions-row">
+    <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+    <button class="reset-btn" id="reset-btn">Reset all fields</button>
+  </div>
+
+</main>
+
+<footer>
+  A living document — revisit at least twice a year or before any major launch. Progress and notes are kept only in this browser tab; print or save a PDF to keep a record.
+</footer>
+
+<script>
+  const AREAS = ["Data Collection","Representation","Model / Metric","Labor & Process","Governance"];
+  const trackerBody = document.getElementById('tracker-body');
+  AREAS.forEach((area, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${area}</td>
+      <td class="status-cell"><select data-area="${i}">
+        <option value="">—</option>
+        <option value="not">Not started</option>
+        <option value="progress">In progress</option>
+        <option value="complete">Complete</option>
+      </select></td>
+      <td><input type="text" data-owner="${i}" placeholder="Owner"></td>
+      <td><input type="text" data-reviewdate="${i}" placeholder="Date"></td>
+    `;
+    trackerBody.appendChild(tr);
+  });
+
+  function updateProgress(){
+    const boxes = document.querySelectorAll('.check-item input[type="checkbox"]');
+    const checked = document.querySelectorAll('.check-item input[type="checkbox"]:checked');
+    const total = boxes.length;
+    const done = checked.length;
+    const pct = total ? Math.round((done/total)*100) : 0;
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-text').textContent = `${done} of ${total} checked`;
+    document.getElementById('progress-pct').textContent = pct + '%';
+  }
+
+  document.querySelectorAll('.check-item').forEach(item => {
+    const box = item.querySelector('input[type="checkbox"]');
+    box.addEventListener('change', () => {
+      item.classList.toggle('checked', box.checked);
+      updateProgress();
+    });
+  });
+
+  document.querySelectorAll('.tracker-table select').forEach(sel => {
+    sel.addEventListener('change', () => {
+      sel.className = '';
+      if (sel.value === 'not') sel.classList.add('status-not');
+      if (sel.value === 'progress') sel.classList.add('status-progress');
+      if (sel.value === 'complete') sel.classList.add('status-complete');
+    });
+  });
+
+  document.getElementById('reset-btn').addEventListener('click', () => {
+    if (!confirm('Reset all checkboxes, notes, and fields?')) return;
+    document.querySelectorAll('input[type="text"]').forEach(i => i.value = '');
+    document.querySelectorAll('textarea').forEach(t => t.value = '');
+    document.querySelectorAll('input[type="checkbox"]').forEach(c => {
+      c.checked = false;
+      c.closest('.check-item').classList.remove('checked');
+    });
+    document.querySelectorAll('.tracker-table select').forEach(s => { s.value=''; s.className=''; });
+    updateProgress();
+  });
+
+  updateProgress();
+</script>
+
+</body>
+</html>
