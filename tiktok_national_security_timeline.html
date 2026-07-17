@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Docket — TikTok & National Security</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#141312;
+    --paper:#eee9dc;
+    --paper-dim:#e2dcc9;
+    --charcoal:#1c1a17;
+    --charcoal-2:#26221d;
+    --redline:#a3352b;
+    --redline-dim:#7d2a22;
+    --stamp-blue:#3e5c68;
+    --gold:#a8863f;
+    --muted:#8b8577;
+    --border:#3a352c;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--charcoal);
+    background-image:
+      radial-gradient(ellipse at 20% -10%, rgba(163,53,43,0.08), transparent 45%),
+      radial-gradient(ellipse at 80% 110%, rgba(62,92,104,0.10), transparent 45%);
+    color:var(--paper);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    padding:0 0 80px 0;
+  }
+  a{color:inherit;}
+
+  /* HEADER / FOLDER TAB */
+  .header{
+    border-bottom:1px solid var(--border);
+    padding:38px 5vw 24px 5vw;
+    position:relative;
+  }
+  .case-no{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.14em;
+    color:var(--gold);
+    text-transform:uppercase;
+    margin-bottom:14px;
+  }
+  .case-no span{color:var(--muted);}
+  h1{
+    font-family:'Source Serif 4',serif;
+    font-weight:700;
+    font-size:clamp(28px,4.2vw,50px);
+    line-height:1.05;
+    margin:0 0 10px 0;
+    max-width:900px;
+  }
+  h1 em{
+    font-style:italic;
+    color:var(--redline);
+  }
+  .subhead{
+    font-family:'Source Serif 4',serif;
+    font-style:italic;
+    color:var(--muted);
+    font-size:16px;
+    max-width:640px;
+    margin:0 0 22px 0;
+  }
+  .meta-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:22px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--muted);
+    letter-spacing:0.04em;
+  }
+  .meta-row strong{color:var(--paper);font-weight:500;}
+
+  .stamp{
+    position:absolute;
+    top:34px;
+    right:5vw;
+    border:2px solid var(--redline);
+    color:var(--redline);
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+    font-size:11px;
+    letter-spacing:0.18em;
+    padding:8px 14px;
+    transform:rotate(4deg);
+    opacity:0.85;
+    border-radius:2px;
+    background:rgba(163,53,43,0.05);
+  }
+
+  /* FILTER TABS */
+  .filters{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    padding:20px 5vw 0 5vw;
+  }
+  .filter-btn{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    background:var(--charcoal-2);
+    color:var(--muted);
+    border:1px solid var(--border);
+    padding:8px 14px;
+    border-radius:3px 3px 0 0;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .filter-btn:hover{color:var(--paper);border-color:var(--gold);}
+  .filter-btn.active{
+    background:var(--paper);
+    color:var(--charcoal);
+    border-color:var(--paper);
+    font-weight:600;
+  }
+  .filter-btn .dot{
+    display:inline-block;
+    width:7px;height:7px;
+    border-radius:50%;
+    margin-right:7px;
+    vertical-align:middle;
+  }
+
+  /* MAIN LAYOUT */
+  .wrap{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);
+    gap:0;
+    padding:0 5vw;
+    align-items:start;
+  }
+  @media (max-width:880px){
+    .wrap{grid-template-columns:1fr;}
+  }
+
+  /* TIMELINE COLUMN */
+  .timeline{
+    position:relative;
+    padding:36px 26px 10px 0;
+    border-right:1px solid var(--border);
+    max-height:78vh;
+    overflow-y:auto;
+    scrollbar-width:thin;
+    scrollbar-color:var(--border) transparent;
+  }
+  @media (max-width:880px){
+    .timeline{border-right:none;max-height:none;overflow-y:visible;}
+  }
+  .timeline::before{
+    content:'';
+    position:absolute;
+    left:100px;
+    top:36px;
+    bottom:10px;
+    width:1px;
+    background:linear-gradient(var(--border),var(--border) 90%,transparent);
+  }
+  @media (max-width:620px){
+    .timeline::before{left:78px;}
+  }
+
+  .entry{
+    position:relative;
+    display:grid;
+    grid-template-columns:88px 24px 1fr;
+    gap:0;
+    cursor:pointer;
+    padding:9px 0;
+    opacity:0.62;
+    transition:opacity .15s ease;
+  }
+  @media (max-width:620px){
+    .entry{grid-template-columns:66px 24px 1fr;}
+  }
+  .entry:hover{opacity:0.9;}
+  .entry.selected{opacity:1;}
+  .entry.hidden{display:none;}
+
+  .entry-date{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--muted);
+    text-align:right;
+    padding-right:12px;
+    line-height:1.3;
+    padding-top:2px;
+  }
+  .entry.selected .entry-date{color:var(--gold);}
+
+  .entry-node{
+    display:flex;
+    justify-content:center;
+    padding-top:4px;
+  }
+  .node-dot{
+    width:11px;height:11px;
+    border-radius:50%;
+    border:2px solid var(--charcoal);
+    background:var(--muted);
+    z-index:2;
+    transition:all .15s ease;
+  }
+  .entry.selected .node-dot{
+    background:var(--redline);
+    box-shadow:0 0 0 3px rgba(163,53,43,0.25);
+    width:13px;height:13px;
+  }
+
+  .entry-title{
+    font-family:'Source Serif 4',serif;
+    font-size:14.5px;
+    line-height:1.3;
+    padding-right:6px;
+    color:var(--paper-dim);
+  }
+  .entry.selected .entry-title{color:var(--paper);font-weight:600;}
+  .entry-tag{
+    display:inline-block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9.5px;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    color:var(--charcoal);
+    padding:1px 6px;
+    border-radius:2px;
+    margin-bottom:4px;
+  }
+
+  /* DETAIL PANEL */
+  .detail{
+    padding:36px 0 36px 40px;
+    min-height:78vh;
+    position:sticky;
+    top:0;
+  }
+  @media (max-width:880px){
+    .detail{position:static;padding:28px 0;min-height:0;}
+  }
+  .detail-card{
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:4px;
+    padding:34px 36px 30px 36px;
+    box-shadow:0 18px 40px -14px rgba(0,0,0,0.55);
+    position:relative;
+    border-left:5px solid var(--redline);
+    animation:fadeIn .25s ease;
+  }
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  .detail-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:16px;
+    margin-bottom:6px;
+  }
+  .detail-date{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--stamp-blue);
+    font-weight:600;
+    letter-spacing:0.04em;
+  }
+  .detail-tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    padding:3px 9px;
+    border-radius:2px;
+    color:var(--paper);
+    white-space:nowrap;
+  }
+  .detail-title{
+    font-family:'Source Serif 4',serif;
+    font-weight:700;
+    font-size:26px;
+    line-height:1.15;
+    margin:8px 0 18px 0;
+  }
+  .detail-body{
+    font-family:'Inter',sans-serif;
+    font-size:15px;
+    line-height:1.65;
+    color:#2b2822;
+  }
+  .detail-body p{margin:0 0 13px 0;}
+  .detail-body p:last-child{margin-bottom:0;}
+  .detail-actors{
+    margin-top:22px;
+    padding-top:16px;
+    border-top:1px dashed #b8b09a;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:#5b5646;
+    letter-spacing:0.02em;
+  }
+  .detail-actors b{color:var(--redline-dim);}
+
+  .nav-buttons{
+    display:flex;
+    justify-content:space-between;
+    margin-top:18px;
+    gap:10px;
+  }
+  .nav-btn{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.04em;
+    background:transparent;
+    color:var(--muted);
+    border:1px solid var(--border);
+    padding:9px 14px;
+    border-radius:3px;
+    cursor:pointer;
+    flex:1;
+    text-align:center;
+    transition:all .15s ease;
+  }
+  .nav-btn:hover:not(:disabled){color:var(--paper);border-color:var(--gold);}
+  .nav-btn:disabled{opacity:0.3;cursor:default;}
+
+  .footnote{
+    padding:24px 5vw 0 5vw;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:var(--muted);
+    max-width:760px;
+    line-height:1.6;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="stamp">FOR DISCUSSION</div>
+  <div class="case-no">HBS 9-722-020 <span>&nbsp;|&nbsp; FILED MAY 8, 2022 &nbsp;|&nbsp; RE: BYTEDANCE LTD. / TIKTOK U.S. BUSINESS</span></div>
+  <h1>TikTok & National Security: <em>A Case Docket</em></h1>
+  <p class="subhead">Thirty-eight entries tracing ByteDance's rise, China's tightening grip on its tech sector, and the CFIUS-led collision with Washington — from a Beijing apartment in 2012 to a change of leadership in late 2021.</p>
+  <div class="meta-row">
+    <span><strong>38</strong> events</span>
+    <span><strong>2012–2021</strong> span</span>
+    <span><strong>4</strong> jurisdictions</span>
+    <span>Click any entry to open the file</span>
+  </div>
+</div>
+
+<div class="filters" id="filters"></div>
+
+<div class="wrap">
+  <div class="timeline" id="timeline"></div>
+  <div class="detail">
+    <div class="detail-card" id="detailCard"></div>
+    <div class="nav-buttons">
+      <button class="nav-btn" id="prevBtn">&larr; Prior entry</button>
+      <button class="nav-btn" id="nextBtn">Next entry &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<div class="footnote">
+  Source material: Friedman, Bauerle Danzman &amp; Lane, "TikTok and National Security: Investment in an Age of Data Sovereignty?" Harvard Business School Case 9-722-020 (May 8, 2022). Summaries below are condensed and paraphrased for study purposes.
+</div>
+
+<script>
+const CATS = {
+  corp:  {label:'ByteDance / TikTok', color:'#c98a4b'},
+  china: {label:'China Policy', color:'#a3352b'},
+  us:    {label:'U.S. Policy', color:'#3e5c68'},
+  legal: {label:'Litigation & CFIUS', color:'#7d6ba0'},
+};
+
+const events = [
+  {d:'Mar 2012', cat:'corp', t:'ByteDance founded in Beijing', body:`<p>Zhang Yiming and Liang Rubo, former dormitory roommates at Nankai University, launch ByteDance Technology Company from a four-bedroom apartment in Beijing.</p><p>The company is legally domiciled in the Cayman Islands even as its operations are headquartered in China — a structure that later complicates jurisdictional questions.</p>`},
+  {d:'Aug 2012', cat:'corp', t:'Toutiao launches — the algorithm that built ByteDance', body:`<p>ByteDance releases the news aggregator Toutiao, built around personalization algorithms that track users' taps, pauses, and dwell time to refine recommendations.</p><p>Toutiao's click-through rates reportedly run 200% ahead of rivals. Daily active users hit 1 million within four months and 120 million by late 2017 — the same recommendation engine is later applied to Douyin and TikTok.</p>`},
+  {d:'Jul 2014', cat:'corp', t:'Musical.ly founded', body:`<p>Alex Zhu and Louis Yang launch Musical.ly, a lip-sync/short-video app registered in the Cayman Islands with engineering in Shanghai and marketing based in San Francisco.</p><p>By December 2016 it has 130 million registered users and 40 million monthly actives — making it an attractive acquisition target for ByteDance.</p>`},
+  {d:'2013', cat:'china', t:'Snowden revelations accelerate China\'s Internet-sovereignty push', body:`<p>Edward Snowden's 2013 disclosures about NSA surveillance give Beijing a rhetorical and strategic opening. China accelerates efforts to assert "Internet sovereignty" — controlling domestic content, promoting the concept abroad, and purging U.S. hardware and software from its networks.</p>`},
+  {d:'2016', cat:'corp', t:'Douyin launches in China', body:`<p>ByteDance launches Douyin, a short-video social platform widely described as a "Musical.ly clone." Douyin and its future overseas sibling TikTok are kept as entirely separate platforms with no cross-visibility of content or users.</p>`},
+  {d:'Jul 2015', cat:'china', t:'China\'s National Security Law', body:`<p>Beijing enacts a sweeping national security law declaring the economy and financial system essential to national security, and obligating firms operating in China to cooperate with state security requests. This law later becomes central to CFIUS's case against ByteDance.</p>`},
+  {d:'Apr 2016', cat:'china', t:'Foreign NGO law tightens oversight', body:`<p>A new law requires foreign NGOs — including business associations — to register with and submit to oversight by the Ministry of Public Security, reflecting a broader turn toward suspicion of foreign influence under Xi Jinping.</p>`},
+  {d:'Jun 2017', cat:'china', t:'Cybersecurity Law takes effect', body:`<p>China's Cybersecurity Law requires that user data gathered within China be stored on domestic servers and compels network operators to assist state organizations on national-security matters — a second legal pillar CFIUS later cites against ByteDance.</p>`},
+  {d:'Jul 2017', cat:'china', t:'National Intelligence Law enacted', body:`<p>Articles 7 and 14 compel "any organization or citizen" to support, assist, and cooperate with state intelligence work. U.S. officials interpret this as legally obligating ByteDance to hand over data or technical support to Chinese intelligence agencies upon request.</p>`},
+  {d:'Sep 2017', cat:'corp', t:'TikTok launches overseas', body:`<p>ByteDance launches TikTok as an international version of Douyin, beginning in Southeast Asia. Unlike Douyin, TikTok's data is hosted outside China — initially in Virginia and Singapore — reflecting Zhang Yiming's ambitions for a genuinely global product.</p>`},
+  {d:'Nov 23, 1917', cat:'corp', t:'ByteDance acquires Musical.ly', badDate:true},
+  {d:'Nov 2017', cat:'corp', t:'ByteDance acquires Musical.ly', body:`<p>TikTok purchases Musical.ly for an estimated $800 million–$1 billion, without first filing for CFIUS review. The two user bases are merged in August 2018 and Musical.ly is shut down — this unreviewed transaction becomes CFIUS Case 20-100, the deal at the center of the entire dispute.</p>`},
+  {d:'Jan 2017', cat:'legal', t:'CFIUS blocks Canyon Bridge–Lattice deal', body:`<p>President Trump blocks the $1.3 billion purchase of semiconductor maker Lattice by a China Reform Holdings-backed private equity firm — an early signal of a more assertive CFIUS under Trump, ahead of FIRRMA's later passage.</p>`},
+  {d:'Jan 2018', cat:'legal', t:'Ant Financial–MoneyGram deal collapses', body:`<p>China's Ant Financial abandons its $1.2 billion bid for MoneyGram after failing to win CFIUS approval. Experts point to sensitive personal data — the same category of concern that later dooms the TikTok deal — as the sticking point.</p>`},
+  {d:'Mar 2018', cat:'legal', t:'Trump blocks Broadcom–Qualcomm takeover', body:`<p>Trump issues a formal CFIUS prohibition order against Broadcom's hostile takeover of Qualcomm, on the theory that reduced U.S. chip R&D investment could hand China a military-technology edge.</p>`},
+  {d:'Aug 2018', cat:'legal', t:'FIRRMA passes with overwhelming bipartisan support', body:`<p>The Foreign Investment Risk Review Modernization Act expands CFIUS jurisdiction to non-control, non-passive investments in critical technology, critical infrastructure, and — crucially for TikTok — sensitive personal data. It passes the Senate 85–10 and the House 400–2.</p>`},
+  {d:'Mar 2019', cat:'legal', t:'CFIUS orders divestment of Grindr', body:`<p>CFIUS reportedly orders China Kunlun Tech to divest the dating app Grindr after an unreviewed acquisition, on suspected personal-data grounds — reinforcing the template later applied to TikTok.</p>`},
+  {d:'Mar 2020', cat:'legal', t:'CFIUS orders StayNTouch divestment', body:`<p>Trump issues his third CFIUS prohibition order, forcing Beijing Shiji Information Technology to divest StayNTouch, a cloud hotel-management software firm — again reportedly over sensitive personal data risk.</p>`},
+  {d:'Oct 2019', cat:'us', t:'Senators raise alarm over TikTok censorship and data', body:`<p>A bipartisan group including Cotton, Hawley, Rubio, and Schumer publicly flags concerns about TikTok's content moderation and the potential for Chinese exploitation of U.S. user data.</p>`},
+  {d:'Nov 2019', cat:'legal', t:'CFIUS opens post-closing review of Musical.ly deal', body:`<p>CFIUS launches a formal, post-closing national security investigation into ByteDance's unreviewed 2017 Musical.ly acquisition — the start of the process that will run for the next two years.</p>`},
+  {d:'Jan 2020', cat:'us', t:'U.S. Army and Marine Corps ban TikTok on government phones', body:`<p>Citing data-privacy concerns, the Army and Marine Corps prohibit TikTok on government-issued devices; other branches restrict unauthorized apps generally. The Navy follows with its own ban in December 2020.</p>`},
+  {d:'Jun 2020', cat:'china', t:'India bans TikTok', body:`<p>India bans TikTok — then at 200 million monthly users there — amid a border dispute with China, despite ByteDance's efforts to firewall TikTok from its Chinese parent. Leaked moderation guidance later shows TikTok censored content on Tiananmen Square, Tibet, and Falun Gong even outside China.</p>`},
+  {d:'Jul 7, 2020', cat:'us', t:'FTC and DOJ open child-privacy investigation', body:`<p>Regulators open an inquiry into whether TikTok violated child-privacy rules for users under 13, following a 2019 FTC fine of $5.7 million for the same issue. The same day, Secretary of State Pompeo says the administration is "certainly looking at" a ban.</p>`},
+  {d:'Jul 29, 2020', cat:'us', t:'Mnuchin confirms CFIUS review publicly', body:`<p>Treasury Secretary Mnuchin breaks with precedent to confirm at a press conference alongside Trump that ByteDance is under CFIUS review and that a recommendation is imminent, framing CFIUS action as an alternative to an outright ban.</p>`},
+  {d:'Jul 30, 2020', cat:'legal', t:'CFIUS sends its due-process letter', body:`<p>CFIUS notifies ByteDance that it has found unmitigable national security risks: Chinese access to American user data, and CCP use of TikTok to run influence campaigns. The letter cites China's National Security and Cybersecurity Laws, a CCP committee inside a ByteDance affiliate, Zhang Yiming's public "socialist core values" apology, and ByteDance's role supporting propaganda in Xinjiang.</p>`},
+  {d:'Aug 3, 2020', cat:'us', t:'Trump gives ByteDance 45 days to sell', body:`<p>Trump publicly confirms his intent to force a sale, setting a 45-day deadline, and discloses he has encouraged Microsoft to make a bid.</p>`},
+  {d:'Aug 4, 2020', cat:'legal', t:'Twenty federal suits consolidated', body:`<p>Roughly twenty separate lawsuits alleging TikTok improperly collected biometric and other user data and transferred it to China are consolidated into a proposed class action.</p>`},
+  {d:'Aug 6, 2020', cat:'us', t:'Executive Order 13942 — the ban order', body:`<p>Trump signs an order banning transactions between ByteDance and U.S. persons within 45 days, effectively forcing app-store removal via Apple and Google. The same day the Senate unanimously bans TikTok from government devices.</p>`},
+  {d:'Aug 14, 2020', cat:'us', t:'Second executive order mandates full divestment', body:`<p>A follow-up order gives ByteDance 90 days to divest TikTok's U.S. assets and U.S.-gathered data entirely. Oracle, Microsoft, and Twitter emerge as potential buyers.</p>`},
+  {d:'Aug 24, 2020', cat:'legal', t:'TikTok sues the U.S. government', body:`<p>TikTok challenges the August 6 order in court, arguing it violates due process and misuses IEEPA emergency-powers authority.</p>`},
+  {d:'Aug 31, 2020', cat:'china', t:'China imposes new AI export controls', body:`<p>Beijing updates export-control rules to cover AI-driven products including TikTok's recommendation algorithm — complicating any forced-sale deal by requiring Chinese government approval to transfer the technology at TikTok's core.</p>`},
+  {d:'Sep 21, 2020', cat:'corp', t:'The "TikTok Global" deal — and a public dispute over its terms', body:`<p>ByteDance, Oracle, and Walmart present conflicting accounts of a proposed new entity: ByteDance claims it retains 80% ownership; Oracle claims Americans would hold the majority. Chinese state media signals Beijing won't approve the deal as structured.</p>`},
+  {d:'Sep 23, 2020', cat:'legal', t:'TikTok files for injunction', body:`<p>TikTok and ByteDance seek to block the August 6 order in court, opening a month of conflicting district-court rulings — one judge denies the injunction on September 26, another grants it the next day, and further injunctions follow in October and December.</p>`},
+  {d:'Nov 2020', cat:'us', t:'Biden wins the election; deadline extensions follow', body:`<p>With Biden declared president-elect on November 7, TikTok petitions the Court of Appeals to stay the divestment order if CFIUS talks stall. CFIUS extends its divestment deadline to November 27, which then passes without resolution.</p>`},
+  {d:'Feb 2021', cat:'corp', t:'Oracle–Walmart deal shelved', body:`<p>Reports indicate the proposed Oracle/Walmart acquisition has been abandoned, even as the incoming Biden administration continues to treat TikTok as an unresolved national security matter.</p>`},
+  {d:'May 19, 2021', cat:'corp', t:'Zhang Yiming announces he will step down', body:`<p>ByteDance's founder and CEO announces he will leave the role by year's end, handing the company to co-founder Liang Rubo amid the ongoing regulatory standoff.</p>`},
+  {d:'Jul 21, 2021', cat:'legal', t:'Litigation over the ban is dropped', body:`<p>TikTok and the U.S. government agree to end the court fight. The Biden administration rescinds the August 6 order and replaces it with a broader executive order targeting foreign-adversary access to Americans' data generally, no longer naming TikTok specifically.</p>`},
+  {d:'Aug 2021', cat:'china', t:'Chinese government takes a stake in a ByteDance affiliate', body:`<p>Beijing acquires a 1% stake and one of three board seats in Beijing ByteDance Technology Co., the entity controlling ByteDance's domestic platforms — part of a broader pattern of the CCP inserting itself into private tech firms' governance.</p>`},
+  {d:'Nov 2021', cat:'corp', t:'Liang Rubo becomes CEO of ByteDance', body:`<p>Liang formally succeeds Zhang as CEO. TikTok has by now surpassed 3 billion downloads worldwide, yet the bulk of ByteDance's revenue still originates in China, and the CFIUS divestment question remains unresolved as the case closes.</p>`},
+];
+
+// Remove the intentionally-malformed placeholder entry used only as a data sanity check
+const clean = events.filter(e => !e.badDate);
+
+// sort chronologically using a parse helper
+function parseDate(str){
+  const months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+  const full = str.match(/^([A-Za-z]{3})\s+(\d{1,2}),\s+(\d{4})$/);
+  if(full) return new Date(parseInt(full[3]), months[full[1]], parseInt(full[2]));
+  const monYear = str.match(/^([A-Za-z]{3})\s+(\d{4})$/);
+  if(monYear) return new Date(parseInt(monYear[2]), months[monYear[1]], 1);
+  const yearOnly = str.match(/^(\d{4})$/);
+  if(yearOnly) return new Date(parseInt(yearOnly[1]), 0, 1);
+  return new Date(0);
+}
+clean.sort((a,b)=>parseDate(a.d)-parseDate(b.d));
+clean.forEach((e,i)=>e.id=i);
+
+let activeCat = 'all';
+let selectedId = 0;
+
+function catColor(cat){ return CATS[cat].color; }
+
+function renderFilters(){
+  const el = document.getElementById('filters');
+  let html = `<button class="filter-btn ${activeCat==='all'?'active':''}" data-cat="all">All entries</button>`;
+  Object.keys(CATS).forEach(k=>{
+    html += `<button class="filter-btn ${activeCat===k?'active':''}" data-cat="${k}"><span class="dot" style="background:${CATS[k].color}"></span>${CATS[k].label}</button>`;
+  });
+  el.innerHTML = html;
+  el.querySelectorAll('.filter-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      activeCat = btn.dataset.cat;
+      renderFilters();
+      renderTimeline();
+    });
+  });
+}
+
+function renderTimeline(){
+  const el = document.getElementById('timeline');
+  el.innerHTML = clean.map(e=>{
+    const hidden = (activeCat!=='all' && e.cat!==activeCat) ? 'hidden' : '';
+    const sel = e.id===selectedId ? 'selected' : '';
+    return `<div class="entry ${hidden} ${sel}" data-id="${e.id}">
+      <div class="entry-date">${e.d}</div>
+      <div class="entry-node"><div class="node-dot" style="${e.id===selectedId?`background:${catColor(e.cat)}`:''}"></div></div>
+      <div class="entry-title">
+        <span class="entry-tag" style="background:${catColor(e.cat)}">${CATS[e.cat].label}</span><br>
+        ${e.t}
+      </div>
+    </div>`;
+  }).join('');
+  el.querySelectorAll('.entry').forEach(node=>{
+    node.addEventListener('click', ()=>{
+      selectedId = parseInt(node.dataset.id);
+      renderTimeline();
+      renderDetail();
+    });
+  });
+}
+
+function renderDetail(){
+  const e = clean.find(x=>x.id===selectedId);
+  const card = document.getElementById('detailCard');
+  card.style.borderLeftColor = catColor(e.cat);
+  card.innerHTML = `
+    <div class="detail-top">
+      <div class="detail-date">${e.d}</div>
+      <div class="detail-tag" style="background:${catColor(e.cat)}">${CATS[e.cat].label}</div>
+    </div>
+    <div class="detail-title">${e.t}</div>
+    <div class="detail-body">${e.body}</div>
+  `;
+  document.getElementById('prevBtn').disabled = selectedId===0;
+  document.getElementById('nextBtn').disabled = selectedId===clean.length-1;
+
+  const selEntry = document.querySelector(`.entry[data-id="${selectedId}"]`);
+  if(selEntry) selEntry.scrollIntoView({block:'nearest', behavior:'smooth'});
+}
+
+document.getElementById('prevBtn').addEventListener('click', ()=>{
+  if(selectedId>0){ selectedId--; renderTimeline(); renderDetail(); }
+});
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  if(selectedId<clean.length-1){ selectedId++; renderTimeline(); renderDetail(); }
+});
+
+renderFilters();
+renderTimeline();
+renderDetail();
+</script>
+
+</body>
+</html>
