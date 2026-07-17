@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Seven Baselines — An Explainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#170f0c;
+    --bg-alt:#1e1512;
+    --paper:#f4ead8;
+    --paper-dim:#e9dcc2;
+    --seal:#bb3b2c;
+    --seal-dark:#8a2b20;
+    --ink:#231a14;
+    --brass:#b3903f;
+    --muted:#a8987d;
+    --border:rgba(244,234,216,0.14);
+    --political:#bb3b2c;
+    --legal:#3c6e71;
+    --social:#b3903f;
+    --info:#7d7261;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    background-image:
+      radial-gradient(ellipse 700px 400px at 12% -5%, rgba(187,59,44,0.12), transparent 60%),
+      radial-gradient(ellipse 600px 500px at 90% 10%, rgba(179,144,63,0.08), transparent 60%);
+    color:var(--paper);
+    font-family:'Inter',sans-serif;
+  }
+  a{color:inherit;}
+  ::selection{background:var(--seal);color:var(--paper);}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding:70px 6vw 50px 6vw;
+    border-bottom:1px solid var(--border);
+    position:relative;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--brass);
+    margin-bottom:18px;
+  }
+  .eyebrow span{color:var(--muted);}
+  .hero-title{
+    display:flex;
+    align-items:baseline;
+    gap:22px;
+    flex-wrap:wrap;
+    margin-bottom:14px;
+  }
+  .zh{
+    font-family:'Noto Serif SC',serif;
+    font-weight:700;
+    font-size:clamp(38px,6vw,64px);
+    line-height:1;
+    color:var(--paper);
+  }
+  .en{
+    font-family:'Source Serif 4',serif;
+    font-weight:700;
+    font-style:italic;
+    font-size:clamp(20px,2.4vw,28px);
+    color:var(--muted);
+  }
+  .hero-sub{
+    max-width:680px;
+    font-family:'Source Serif 4',serif;
+    font-size:17px;
+    line-height:1.6;
+    color:var(--paper-dim);
+    margin-bottom:26px;
+  }
+  .hero-meta{
+    display:flex;
+    gap:28px;
+    flex-wrap:wrap;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    color:var(--muted);
+  }
+  .hero-meta strong{color:var(--paper);font-weight:500;}
+  .stamp{
+    position:absolute;
+    top:64px;
+    right:6vw;
+    border:2px solid var(--seal);
+    color:var(--seal);
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+    font-size:11px;
+    letter-spacing:0.16em;
+    padding:9px 15px;
+    transform:rotate(4deg);
+    border-radius:2px;
+    background:rgba(187,59,44,0.06);
+  }
+  @media (max-width:760px){ .stamp{display:none;} }
+
+  /* ---------- SECTION LABELS ---------- */
+  .section{ padding:54px 6vw; border-bottom:1px solid var(--border); }
+  .section-head{ max-width:720px; margin-bottom:34px; }
+  .section-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--brass);
+    margin-bottom:10px;
+  }
+  .section-title{
+    font-family:'Source Serif 4',serif;
+    font-weight:700;
+    font-size:clamp(22px,3vw,32px);
+    line-height:1.2;
+    margin:0 0 12px 0;
+  }
+  .section-desc{
+    font-family:'Inter',sans-serif;
+    font-size:15px;
+    line-height:1.7;
+    color:var(--muted);
+  }
+
+  /* ---------- TOGGLE ---------- */
+  .toggle-row{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:30px;
+    flex-wrap:wrap;
+  }
+  .toggle-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--muted);
+    letter-spacing:0.04em;
+  }
+  .toggle-group{
+    display:inline-flex;
+    background:var(--bg-alt);
+    border:1px solid var(--border);
+    border-radius:5px;
+    padding:3px;
+  }
+  .toggle-btn{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    letter-spacing:0.03em;
+    background:transparent;
+    color:var(--muted);
+    border:none;
+    padding:9px 16px;
+    border-radius:3px;
+    cursor:pointer;
+    transition:all .18s ease;
+  }
+  .toggle-btn.active{
+    background:var(--seal);
+    color:var(--paper);
+    font-weight:600;
+  }
+  .toggle-btn:hover:not(.active){ color:var(--paper); }
+
+  .legend{
+    display:flex;
+    gap:16px;
+    flex-wrap:wrap;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:var(--muted);
+    margin-bottom:8px;
+  }
+  .legend .dot{ display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle; }
+
+  /* ---------- LADDER / CARDS ---------- */
+  .ladder{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    max-width:900px;
+  }
+  .rung{
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:6px;
+    border-left:6px solid var(--muted);
+    box-shadow:0 10px 26px -14px rgba(0,0,0,0.6);
+    cursor:pointer;
+    transition:opacity .32s ease, transform .32s ease;
+    overflow:hidden;
+  }
+  .rung.fading{ opacity:0; transform:translateY(6px); }
+  .rung-head{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding:16px 20px;
+  }
+  .rung-num{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+    font-size:13px;
+    color:var(--muted);
+    width:22px;
+    flex-shrink:0;
+  }
+  .rung-titles{ flex:1; min-width:0; }
+  .rung-zh{
+    font-family:'Noto Serif SC',serif;
+    font-weight:600;
+    font-size:16.5px;
+    margin-right:10px;
+  }
+  .rung-en{
+    font-family:'Source Serif 4',serif;
+    font-weight:600;
+    font-size:15.5px;
+  }
+  .rung-tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9.5px;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    padding:4px 9px;
+    border-radius:3px;
+    color:#fff;
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+  .chev{
+    font-size:13px;
+    color:var(--muted);
+    transition:transform .2s ease;
+    flex-shrink:0;
+  }
+  .rung.open .chev{ transform:rotate(90deg); }
+  .rung-body{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .3s ease;
+    border-top:1px dashed #c9bfa2;
+  }
+  .rung.open .rung-body{ max-height:260px; }
+  .rung-body-inner{
+    padding:16px 20px 20px 58px;
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    line-height:1.65;
+    color:#3a3226;
+  }
+  .rung-body-inner b{ color:var(--seal-dark); }
+
+  /* ---------- CONTEXT GRID ---------- */
+  .context-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:26px;
+    max-width:980px;
+  }
+  @media (max-width:720px){ .context-grid{ grid-template-columns:1fr; } }
+  .context-card{
+    background:var(--bg-alt);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:22px 24px;
+  }
+  .context-card h3{
+    font-family:'Source Serif 4',serif;
+    font-size:17px;
+    margin:0 0 10px 0;
+    color:var(--paper);
+  }
+  .context-card p{
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    line-height:1.7;
+    color:var(--muted);
+    margin:0;
+  }
+  .context-card p + p{ margin-top:10px; }
+  .context-card .names{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--brass);
+    margin-top:8px;
+  }
+
+  /* ---------- QUIZ ---------- */
+  .quiz-card{
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:8px;
+    padding:28px 30px;
+    max-width:720px;
+    box-shadow:0 14px 34px -16px rgba(0,0,0,0.6);
+  }
+  .quiz-q{
+    font-family:'Source Serif 4',serif;
+    font-weight:600;
+    font-size:18px;
+    margin-bottom:16px;
+  }
+  .quiz-options{
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+    margin-bottom:14px;
+  }
+  .quiz-opt{
+    text-align:left;
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    background:var(--paper-dim);
+    border:1.5px solid transparent;
+    border-radius:5px;
+    padding:11px 15px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .quiz-opt:hover{ border-color:var(--brass); }
+  .quiz-opt.correct{ background:#dcead9; border-color:#4c7a4a; }
+  .quiz-opt.wrong{ background:#f0d9d5; border-color:var(--seal); }
+  .quiz-feedback{
+    font-family:'Inter',sans-serif;
+    font-size:13.5px;
+    line-height:1.6;
+    color:#4a4232;
+    display:none;
+  }
+  .quiz-feedback.show{ display:block; }
+
+  /* ---------- FOOTER ---------- */
+  .footer{
+    padding:34px 6vw 60px 6vw;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:var(--muted);
+    line-height:1.7;
+    max-width:760px;
+  }
+  .footer a{ color:var(--brass); text-decoration:none; border-bottom:1px dotted var(--brass); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="stamp">POLICY BRIEF</div>
+  <div class="eyebrow">CHINA MEDIA &amp; INTERNET GOVERNANCE <span>&nbsp;·&nbsp; AUGUST 2013 &nbsp;·&nbsp; COMPANION TO THE TIKTOK / CFIUS CASE</span></div>
+  <div class="hero-title">
+    <span class="zh">七条底线</span>
+    <span class="en">The Seven Baselines</span>
+  </div>
+  <p class="hero-sub">In August 2013, China's internet industry gathered in Beijing and agreed to a set of seven rules for "acceptable" online conduct — officially framed as a clean-up of online rumors. Read in the order Beijing published them, the list looks unremarkable. Read for what actually gets enforced, it reveals what the state was really protecting.</p>
+  <div class="hero-meta">
+    <span><strong>7</strong> baselines</span>
+    <span><strong>2013</strong> China Internet Conference</span>
+    <span>Source: China Media Project, David Bandurski</span>
+  </div>
+</div>
+
+<div class="section" id="ladder-section">
+  <div class="section-head">
+    <div class="section-label">01 — The list, two ways</div>
+    <h2 class="section-title">Same seven rules. Two very different stories.</h2>
+    <p class="section-desc">Beijing published the baselines as a numbered, procedural-looking list. Click a rule to read what it meant in practice. Then switch the view below to sort by <em>what actually got enforced</em> rather than the order it was announced in — the gap between the two tells you what the policy was really for.</p>
+  </div>
+
+  <div class="toggle-row">
+    <span class="toggle-label">SORT BY</span>
+    <div class="toggle-group">
+      <button class="toggle-btn active" data-mode="official">Official sequence</button>
+      <button class="toggle-btn" data-mode="weight">Political weight</button>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot" style="background:var(--political)"></span>Political control</span>
+    <span><span class="dot" style="background:var(--legal)"></span>Legal / procedural</span>
+    <span><span class="dot" style="background:var(--social)"></span>Social order</span>
+    <span><span class="dot" style="background:var(--info)"></span>Information quality</span>
+  </div>
+
+  <div class="ladder" id="ladder"></div>
+</div>
+
+<div class="section">
+  <div class="section-head">
+    <div class="section-label">02 — Why it was framed as an anti-rumor drive</div>
+    <h2 class="section-title">The stated problem, and the actual one</h2>
+    <p class="section-desc">The official narrative was about protecting the public from harmful misinformation. The enforcement record tells a narrower story.</p>
+  </div>
+  <div class="context-grid">
+    <div class="context-card">
+      <h3>The public case</h3>
+      <p>The campaign launched alongside a Public Security Bureau crackdown on people accused of fabricating and spreading online rumors for profit — extortion, stock manipulation, manufactured outrage. State media held these arrests up as proof the internet needed cleaning up.</p>
+      <p class="names">Cases cited at the time: Qin Huohuo · Li'er Chaisi · Zhou Lubao · Fu Xuesheng</p>
+    </div>
+    <div class="context-card">
+      <h3>The structural tell</h3>
+      <p>Rule seven — information accuracy — sits dead last. Rules two and three, protecting the "socialist system" and vaguely defined "national interests," sit near the top. A policy genuinely aimed at truthful information would not bury accuracy at the bottom of its own list.</p>
+      <p>Commentary from the Communist Party's Guangdong paper at the time cast the baselines as ordinary civic responsibility — every citizen's duty to avoid spreading and believing rumors.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-head">
+    <div class="section-label">03 — Test yourself</div>
+    <h2 class="section-title">Which baseline actually got people arrested?</h2>
+    <p class="section-desc">Of the seven, which one carried the heaviest real-world enforcement risk for an ordinary internet user or influencer in 2013?</p>
+  </div>
+  <div class="quiz-card">
+    <div class="quiz-q">If you were an online influencer in China in late 2013, which baseline was most likely to end your account — or land you in custody?</div>
+    <div class="quiz-options" id="quizOptions">
+      <button class="quiz-opt" data-correct="false">The Moral Base Line — posting content seen as indecent or offensive</button>
+      <button class="quiz-opt" data-correct="false">The Base Line of Information Accuracy — getting a fact wrong</button>
+      <button class="quiz-opt" data-correct="true">The Base Line of the Socialist System / National Interests — political speech read as destabilizing</button>
+      <button class="quiz-opt" data-correct="false">The Base Line of Public Order — organizing an unauthorized gathering</button>
+    </div>
+    <div class="quiz-feedback" id="quizFeedback"></div>
+  </div>
+</div>
+
+<div class="section" style="border-bottom:none;">
+  <div class="section-head">
+    <div class="section-label">04 — Where this connects</div>
+    <h2 class="section-title">Part of a larger pattern</h2>
+    <p class="section-desc">The Seven Baselines were a domestic speech-control measure, aimed at Chinese internet users inside China. But the same instinct — treating "national interest" and "socialist system" conformity as non-negotiable, and information accuracy as secondary — shows up again a few years later, once ByteDance takes a Chinese-built recommendation engine and a Chinese content-moderation playbook global. Leaked TikTok moderation guidance from 2019 shows the same hierarchy at work abroad: bans on content about Tiananmen Square, Tibetan independence, and Falun Gong, enforced by Beijing-based moderators even for a platform marketed as a neutral global product.</p>
+  </div>
+</div>
+
+<div class="footer">
+  Source: David Bandurski, <a href="https://chinamediaproject.org/2013/08/27/china-defines-seven-base-lines-for-a-nicer-internet/" target="_blank" rel="noopener">"China's 'seven base lines' for a clean internet,"</a> China Media Project, August 27, 2013. Content on this page is a condensed, paraphrased explainer built for classroom discussion — not a reproduction of the original article. Referenced via footnote 65 of Friedman, Bauerle Danzman &amp; Lane, "TikTok and National Security" (HBS 9-722-020).
+</div>
+
+<script>
+const baselines = [
+  { officialOrder:1, zh:'法律法规底线', en:'Laws and Regulations', cat:'legal',
+    detail:'The most straightforward rule on paper: don\'t break existing Chinese law online. In practice this baseline did the least independent work — the other six baselines expanded what counted as a violation well beyond the written statutes.' },
+  { officialOrder:2, zh:'社会主义制度底线', en:'The Socialist System', cat:'political',
+    detail:'Content cannot question or undermine China\'s one-party socialist system. This is the least procedural, most political rule on the list — and it sits second, immediately after "obey the law," despite having nothing to do with rumors or accuracy.' },
+  { officialOrder:3, zh:'国家利益底线', en:'National Interests', cat:'political',
+    detail:'A deliberately undefined standard. "National interest" can be stretched to cover almost any politically sensitive topic — border disputes, minority policy, foreign relations — giving censors broad discretion with no need to prove anything was factually false.' },
+  { officialOrder:4, zh:'公民合法权益底线', en:"Citizens' Legal Rights and Interests", cat:'legal',
+    detail:'Nominally protects individuals from defamation, harassment, and privacy violations online — the baseline most similar to conventional legal-liability rules found in other countries\' internet regulation.' },
+  { officialOrder:5, zh:'社会公共秩序底线', en:'Public Order', cat:'social',
+    detail:'Aimed at content seen as inciting unrest, organizing unauthorized collective action, or otherwise threatening social stability — a category that, like "national interest," is elastic enough to apply well beyond literal public-safety concerns.' },
+  { officialOrder:6, zh:'道德风尚底线', en:'The Moral Base Line', cat:'social',
+    detail:'Covers content judged indecent, vulgar, or offensive to public morality — the baseline most comparable to ordinary decency standards used in content moderation elsewhere.' },
+  { officialOrder:7, zh:'信息真实性底线', en:'Information Accuracy', cat:'info',
+    detail:'The rule the entire campaign was publicly justified by — stopping false rumors — is listed last. Its bottom placement is the clearest evidence that truthfulness was the framing device for the policy, not its actual priority.' },
+];
+
+const weightOrder = { political:0, legal:1, social:2, info:3 };
+const catColor = { political:'var(--political)', legal:'var(--legal)', social:'var(--social)', info:'var(--info)' };
+const catLabel = { political:'Political control', legal:'Legal / procedural', social:'Social order', info:'Information quality' };
+
+let mode = 'official';
+
+function sortedList(){
+  const arr = [...baselines];
+  if(mode === 'official'){
+    arr.sort((a,b)=>a.officialOrder-b.officialOrder);
+  } else {
+    arr.sort((a,b)=>{
+      const w = weightOrder[a.cat]-weightOrder[b.cat];
+      if(w !== 0) return w;
+      return a.officialOrder-b.officialOrder;
+    });
+  }
+  return arr;
+}
+
+function renderLadder(){
+  const el = document.getElementById('ladder');
+  const list = sortedList();
+  el.innerHTML = list.map((b,i)=>`
+    <div class="rung" data-order="${b.officialOrder}" style="border-left-color:${catColor[b.cat]}">
+      <div class="rung-head">
+        <span class="rung-num">${mode==='official' ? String(b.officialOrder).padStart(2,'0') : String(i+1).padStart(2,'0')}</span>
+        <div class="rung-titles">
+          <span class="rung-zh">${b.zh}</span><span class="rung-en">${b.en}</span>
+        </div>
+        <span class="rung-tag" style="background:${catColor[b.cat]}">${catLabel[b.cat]}</span>
+        <span class="chev">&#9656;</span>
+      </div>
+      <div class="rung-body"><div class="rung-body-inner">${b.detail}${mode==='official' ? '' : `<br><br><b>Official rank: #${b.officialOrder} of 7.</b>`}</div></div>
+    </div>
+  `).join('');
+
+  el.querySelectorAll('.rung').forEach(rung=>{
+    rung.querySelector('.rung-head').addEventListener('click', ()=>{
+      rung.classList.toggle('open');
+    });
+  });
+}
+
+function switchMode(newMode){
+  if(newMode === mode) return;
+  const el = document.getElementById('ladder');
+  el.querySelectorAll('.rung').forEach(r=>r.classList.add('fading'));
+  setTimeout(()=>{
+    mode = newMode;
+    renderLadder();
+  }, 220);
+}
+
+document.querySelectorAll('.toggle-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    switchMode(btn.dataset.mode);
+  });
+});
+
+renderLadder();
+
+// quiz
+document.querySelectorAll('.quiz-opt').forEach(opt=>{
+  opt.addEventListener('click', ()=>{
+    const already = document.querySelector('.quiz-opt.correct, .quiz-opt.wrong');
+    if(already) return;
+    const correct = opt.dataset.correct === 'true';
+    opt.classList.add(correct ? 'correct' : 'wrong');
+    if(!correct){
+      document.querySelectorAll('.quiz-opt').forEach(o=>{
+        if(o.dataset.correct === 'true') o.classList.add('correct');
+      });
+    }
+    const fb = document.getElementById('quizFeedback');
+    fb.classList.add('show');
+    fb.innerHTML = correct
+      ? "Right. Political-conformity rules carried the real enforcement weight in 2013 — and still do. \"Public order\" and \"morality\" violations happened too, but political speech was the fastest route to a deleted account or a knock on the door."
+      : "Not quite. The heaviest real-world consequences fell on political speech read as challenging the socialist system or national interest — the two baselines ranked 2nd and 3rd, well above \"information accuracy\" at the bottom of the list.";
+  });
+});
+</script>
+
+</body>
+</html>
